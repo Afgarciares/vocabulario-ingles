@@ -15,14 +15,13 @@
       --yellow: #eab308;
       --red: #ef4444;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem; }
     
-    /* Contenedores generales */
     .view-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 1.2rem; }
     .hidden { display: none !important; }
 
-    /* Pantalla de Inicio / Menú */
+    /* Menú */
     .menu-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
     .title { font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; }
     .subtitle { font-size: 0.85rem; color: var(--subtext); text-align: center; margin-bottom: 1.5rem; }
@@ -31,36 +30,33 @@
     .form-label { font-size: 0.85rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; }
     
     .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .select-btn { background: #334155; border: 2px solid transparent; color: #fff; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; text-align: center; font-size: 0.9rem; }
-    .select-btn.active { border-color: var(--accent); background: #0284c7; }
+    .btn-opt { background: #334155; border: 2px solid transparent; color: #fff; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; text-align: center; font-size: 0.9rem; transition: background 0.2s, border-color 0.2s; }
+    .btn-opt.active { border-color: var(--accent); background: #0284c7; }
 
     .qty-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .qty-btn { background: #334155; border: 2px solid transparent; color: #fff; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; text-align: center; }
-    .qty-btn.active { border-color: var(--accent); background: #0284c7; }
+    .btn-qty { background: #334155; border: 2px solid transparent; color: #fff; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; text-align: center; font-size: 0.85rem; }
+    .btn-qty.active { border-color: var(--accent); background: #0284c7; }
 
     .btn-start { background: var(--accent); color: #0f172a; font-weight: 700; padding: 16px; border-radius: 14px; border: none; font-size: 1.05rem; cursor: pointer; margin-top: 1rem; width: 100%; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); }
 
-    /* Barra de progreso y encabezado */
+    /* Estudio */
     .header { display: flex; justify-content: space-between; align-items: center; }
     .stats { font-size: 0.9rem; font-weight: 600; color: var(--subtext); }
-    .btn-exit { background: none; border: none; color: var(--subtext); font-size: 0.85rem; cursor: pointer; }
+    .btn-exit { background: none; border: none; color: var(--subtext); font-size: 0.85rem; cursor: pointer; padding: 4px; }
     .progress-bar { width: 100%; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
 
-    /* Tarjetas de estudio */
     .card-box { width: 100%; min-height: 260px; background: var(--card-bg); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 1.5rem; position: relative; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
     .card-num { position: absolute; top: 16px; left: 16px; font-size: 0.85rem; color: var(--subtext); }
     .prompt { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.8rem; }
-    .hint { font-size: 0.9rem; color: var(--subtext); cursor: pointer; }
+    .hint { font-size: 0.9rem; color: var(--subtext); cursor: pointer; padding: 8px; }
     .translation { font-size: 1.8rem; color: var(--accent); font-weight: 600; margin-top: 1rem; display: none; }
 
-    /* Modo Escritura */
     .input-box { width: 100%; margin-top: 1rem; display: flex; flex-direction: column; gap: 8px; }
     .text-input { width: 100%; background: #0f172a; border: 2px solid #334155; padding: 12px; border-radius: 10px; color: #fff; font-size: 1rem; text-align: center; outline: none; }
     .text-input:focus { border-color: var(--accent); }
     .btn-verify { background: #334155; color: #fff; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
 
-    /* Botones de calificación */
     .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
     .btn-eval { border: none; padding: 14px 8px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #fff; }
     .btn-fail { background: var(--red); }
@@ -75,18 +71,18 @@
 </head>
 <body>
 
-  <!-- PANTALLA 1: MENÚ DE CONFIGURACIÓN -->
+  <!-- PANTALLA 1: MENÚ -->
   <div class="view-container" id="menuView">
     <div class="menu-card">
       <div class="title">Configurar Sesión</div>
       <div class="subtitle">Personaliza tu práctica diaria de inglés</div>
 
-      <!-- Objetivo / Modo -->
+      <!-- Tipo de sesión -->
       <div class="form-group">
         <label class="form-label">1. Tipo de sesión</label>
         <div class="select-grid">
-          <button class="select-btn active" id="btnModeDiagnostic" onclick="setSessionMode('all')">Test Inicial (Todo)</button>
-          <button class="select-btn" id="btnModeReview" onclick="setSessionMode('review')">Repasar Dudosas/Malas</button>
+          <button type="button" class="btn-opt active" id="mode-all" onclick="selectMode('all')">Test Inicial (Todo)</button>
+          <button type="button" class="btn-opt" id="mode-review" onclick="selectMode('review')">Repasar Dudosas/Malas</button>
         </div>
       </div>
 
@@ -94,31 +90,31 @@
       <div class="form-group">
         <label class="form-label">2. Método de práctica</label>
         <div class="select-grid">
-          <button class="select-btn active" id="btnMethodFlashcard" onclick="setMethod('flashcard')">Flashcards (Tocar)</button>
-          <button class="select-btn" id="btnMethodTyping" onclick="setMethod('typing')">Escribir respuesta</button>
+          <button type="button" class="btn-opt active" id="method-flashcard" onclick="selectMethod('flashcard')">Flashcards (Tocar)</button>
+          <button type="button" class="btn-opt" id="method-typing" onclick="selectMethod('typing')">Escribir respuesta</button>
         </div>
       </div>
 
-      <!-- Cantidad de palabras -->
+      <!-- Cantidad -->
       <div class="form-group">
         <label class="form-label">3. Palabras por sesión</label>
         <div class="qty-grid">
-          <button class="qty-btn active" onclick="setQuantity(10)">10</button>
-          <button class="qty-btn" onclick="setQuantity(20)">20</button>
-          <button class="qty-btn" onclick="setQuantity(50)">50</button>
-          <button class="qty-btn" onclick="setQuantity('all')">Todas</button>
+          <button type="button" class="btn-qty active" id="qty-10" onclick="selectQty(10)">10</button>
+          <button type="button" class="btn-qty" id="qty-20" onclick="selectQty(20)">20</button>
+          <button type="button" class="btn-qty" id="qty-50" onclick="selectQty(50)">50</button>
+          <button type="button" class="btn-qty" id="qty-all" onclick="selectQty('all')">Todas</button>
         </div>
       </div>
 
-      <button class="btn-start" onclick="startSession()">Empezar Sesión</button>
+      <button type="button" class="btn-start" onclick="startSession()">Empezar Sesión</button>
     </div>
   </div>
 
-  <!-- PANTALLA 2: SESIÓN DE ESTUDIO -->
+  <!-- PANTALLA 2: ESTUDIO -->
   <div class="view-container hidden" id="studyView">
     <div class="header">
       <div class="stats" id="sessionStats">Palabra 1 de 10</div>
-      <button class="btn-exit" onclick="cancelSession()">Terminar</button>
+      <button type="button" class="btn-exit" onclick="cancelSession()">Terminar</button>
     </div>
 
     <div class="progress-bar">
@@ -129,46 +125,10 @@
       <div class="card-num" id="cardNum">#---</div>
       <div class="prompt" id="cardPrompt">Word</div>
       
-      <!-- Vista Flashcard -->
       <div id="flashcardModeContent" style="width: 100%; text-align: center;">
         <div class="hint" id="cardHint" onclick="revealCard()">Toca aquí para ver significado</div>
       </div>
 
-      <!-- Vista Escritura -->
       <div id="typingModeContent" class="input-box hidden">
         <input type="text" id="typeAnswer" class="text-input" placeholder="Escribe el significado..." autocomplete="off" autocapitalize="none">
-        <button class="btn-verify" onclick="checkTypingAnswer()">Comprobar</button>
-      </div>
-
-      <div class="translation" id="cardTranslation">Traducción</div>
-    </div>
-
-    <!-- Botones de autoevaluación -->
-    <div class="controls hidden" id="actionControls">
-      <button class="btn-eval btn-fail" onclick="evaluateAnswer('fail')">No la sé (✕)</button>
-      <button class="btn-eval btn-doubt" onclick="evaluateAnswer('doubt')">Duda (?)</button>
-      <button class="btn-eval btn-pass" onclick="evaluateAnswer('pass')">La sé (✓)</button>
-    </div>
-  </div>
-
-  <!-- PANTALLA 3: RESULTADOS -->
-  <div class="view-container hidden" id="resultsView">
-    <div class="menu-card" style="display: flex; flex-direction: column; gap: 1rem;">
-      <div class="title">Resultados de la sesión</div>
-      <div class="results-score" id="scorePercent">0%</div>
-
-      <div class="stat-row">
-        <span>Conocidas (✓):</span>
-        <strong style="color: var(--green);" id="countPass">0</strong>
-      </div>
-      <div class="stat-row">
-        <span>Dudosas (?):</span>
-        <strong style="color: var(--yellow);" id="countDoubt">0</strong>
-      </div>
-      <div class="stat-row">
-        <span>Desconocidas (✕):</span>
-        <strong style="color: var(--red);" id="countFail">0</strong>
-      </div>
-
-      <div style="font-weight: 600; font-size: 0.85rem; color: var(--subtext); margin-top: 5px;">PALABRAS PARA REPASO:</div>
-      <div
+        <button type
