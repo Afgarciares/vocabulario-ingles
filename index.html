@@ -3,132 +3,314 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vocabulario 1000 Palabras</title>
+  <title>Vocabulario</title>
   <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --text: #f8fafc;
-      --accent: #38bdf8;
-      --subtext: #94a3b8;
-      --green: #22c55e;
-      --yellow: #eab308;
-      --red: #ef4444;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: #0f172a; color: #f8fafc; min-height: 100vh; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; }
+    .box { width: 100%; max-width: 400px; background: #1e293b; border-radius: 18px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    .title { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .sub { font-size: 0.85rem; color: #94a3b8; text-align: center; margin-bottom: 20px; }
     
-    .view-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 1.2rem; }
-    .hidden { display: none !important; }
-
-    /* Menú */
-    .menu-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-    .title { font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; }
-    .subtitle { font-size: 0.85rem; color: var(--subtext); text-align: center; margin-bottom: 1.5rem; }
+    .label { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 20px; }
     
-    .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.2rem; }
-    .form-label { font-size: 0.85rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; }
+    button { cursor: pointer; border: none; font-size: 0.95rem; }
+    .btn-choice { background: #334155; color: #fff; padding: 12px 6px; border-radius: 10px; font-weight: 600; text-align: center; border: 2px solid transparent; }
+    .btn-choice.active { background: #0284c7; border-color: #38bdf8; }
     
-    .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn-opt { background: #334155; border: 2px solid transparent; color: #fff; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; text-align: center; font-size: 0.9rem; transition: background 0.2s, border-color 0.2s; }
-    .btn-opt.active { border-color: var(--accent); background: #0284c7; }
+    .btn-main { width: 100%; background: #38bdf8; color: #0f172a; font-weight: 700; padding: 15px; border-radius: 12px; font-size: 1rem; }
+    
+    /* Vistas */
+    .view { width: 100%; max-width: 400px; display: none; flex-direction: column; gap: 14px; }
+    .view.show { display: flex; }
+    
+    .card { background: #1e293b; border-radius: 18px; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; position: relative; text-align: center; }
+    .card-id { position: absolute; top: 14px; left: 16px; font-size: 0.8rem; color: #94a3b8; }
+    .prompt { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
+    .reveal-btn { color: #38bdf8; font-size: 0.95rem; text-decoration: underline; background: none; }
+    .answer { font-size: 1.7rem; color: #38bdf8; font-weight: 600; margin-top: 10px; display: none; }
+    
+    .input-write { width: 100%; padding: 12px; background: #0f172a; border: 2px solid #334155; border-radius: 10px; color: #fff; font-size: 1rem; text-align: center; margin-top: 10px; }
+    .btn-check { background: #334155; color: #fff; padding: 10px; border-radius: 8px; width: 100%; margin-top: 6px; font-weight: 600; }
 
-    .qty-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .btn-qty { background: #334155; border: 2px solid transparent; color: #fff; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; text-align: center; font-size: 0.85rem; }
-    .btn-qty.active { border-color: var(--accent); background: #0284c7; }
+    .eval-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .btn-eval { padding: 14px 4px; border-radius: 10px; font-weight: 700; color: #fff; font-size: 0.85rem; }
+    .btn-f { background: #ef4444; }
+    .btn-d { background: #eab308; color: #000; }
+    .btn-p { background: #22c55e; }
 
-    .btn-start { background: var(--accent); color: #0f172a; font-weight: 700; padding: 16px; border-radius: 14px; border: none; font-size: 1.05rem; cursor: pointer; margin-top: 1rem; width: 100%; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); }
-
-    /* Estudio */
-    .header { display: flex; justify-content: space-between; align-items: center; }
-    .stats { font-size: 0.9rem; font-weight: 600; color: var(--subtext); }
-    .btn-exit { background: none; border: none; color: var(--subtext); font-size: 0.85rem; cursor: pointer; padding: 4px; }
-    .progress-bar { width: 100%; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
-
-    .card-box { width: 100%; min-height: 260px; background: var(--card-bg); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 1.5rem; position: relative; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-    .card-num { position: absolute; top: 16px; left: 16px; font-size: 0.85rem; color: var(--subtext); }
-    .prompt { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.8rem; }
-    .hint { font-size: 0.9rem; color: var(--subtext); cursor: pointer; padding: 8px; }
-    .translation { font-size: 1.8rem; color: var(--accent); font-weight: 600; margin-top: 1rem; display: none; }
-
-    .input-box { width: 100%; margin-top: 1rem; display: flex; flex-direction: column; gap: 8px; }
-    .text-input { width: 100%; background: #0f172a; border: 2px solid #334155; padding: 12px; border-radius: 10px; color: #fff; font-size: 1rem; text-align: center; outline: none; }
-    .text-input:focus { border-color: var(--accent); }
-    .btn-verify { background: #334155; color: #fff; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-
-    .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
-    .btn-eval { border: none; padding: 14px 8px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #fff; }
-    .btn-fail { background: var(--red); }
-    .btn-doubt { background: var(--yellow); color: #000; }
-    .btn-pass { background: var(--green); }
-
-    /* Resultados */
-    .results-score { font-size: 2.6rem; font-weight: 800; color: var(--green); text-align: center; }
-    .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.95rem; }
-    .words-box { max-height: 180px; overflow-y: auto; background: #0f172a; padding: 12px; border-radius: 10px; font-size: 0.85rem; line-height: 1.5; }
+    .score { font-size: 2.8rem; font-weight: 800; color: #22c55e; text-align: center; margin: 10px 0; }
+    .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .list-box { background: #0f172a; padding: 12px; border-radius: 10px; max-height: 180px; overflow-y: auto; font-size: 0.85rem; line-height: 1.5; }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA 1: MENÚ -->
-  <div class="view-container" id="menuView">
-    <div class="menu-card">
+  <!-- 1. CONFIGURACIÓN -->
+  <div id="v-menu" class="view show">
+    <div class="box">
       <div class="title">Configurar Sesión</div>
-      <div class="subtitle">Personaliza tu práctica diaria de inglés</div>
+      <div class="sub">Elige tus preferencias de práctica</div>
 
-      <!-- Tipo de sesión -->
-      <div class="form-group">
-        <label class="form-label">1. Tipo de sesión</label>
-        <div class="select-grid">
-          <button type="button" class="btn-opt active" id="mode-all" onclick="selectMode('all')">Test Inicial (Todo)</button>
-          <button type="button" class="btn-opt" id="mode-review" onclick="selectMode('review')">Repasar Dudosas/Malas</button>
-        </div>
+      <span class="label">1. Modo</span>
+      <div class="grid-2">
+        <button id="opt-mode-all" class="btn-choice active" onclick="setMode('all')">Test Inicial</button>
+        <button id="opt-mode-rev" class="btn-choice" onclick="setMode('rev')">Repasar Dudosas</button>
       </div>
 
-      <!-- Método -->
-      <div class="form-group">
-        <label class="form-label">2. Método de práctica</label>
-        <div class="select-grid">
-          <button type="button" class="btn-opt active" id="method-flashcard" onclick="selectMethod('flashcard')">Flashcards (Tocar)</button>
-          <button type="button" class="btn-opt" id="method-typing" onclick="selectMethod('typing')">Escribir respuesta</button>
-        </div>
+      <span class="label">2. Método</span>
+      <div class="grid-2">
+        <button id="opt-met-flash" class="btn-choice active" onclick="setMet('flash')">Flashcards</button>
+        <button id="opt-met-type" class="btn-choice" onclick="setMet('type')">Escribir</button>
       </div>
 
-      <!-- Cantidad -->
-      <div class="form-group">
-        <label class="form-label">3. Palabras por sesión</label>
-        <div class="qty-grid">
-          <button type="button" class="btn-qty active" id="qty-10" onclick="selectQty(10)">10</button>
-          <button type="button" class="btn-qty" id="qty-20" onclick="selectQty(20)">20</button>
-          <button type="button" class="btn-qty" id="qty-50" onclick="selectQty(50)">50</button>
-          <button type="button" class="btn-qty" id="qty-all" onclick="selectQty('all')">Todas</button>
-        </div>
+      <span class="label">3. Cantidad</span>
+      <div class="grid-4">
+        <button id="opt-q-10" class="btn-choice active" onclick="setQ(10)">10</button>
+        <button id="opt-q-20" class="btn-choice" onclick="setQ(20)">20</button>
+        <button id="opt-q-50" class="btn-choice" onclick="setQ(50)">50</button>
+        <button id="opt-q-all" class="btn-choice" onclick="setQ('all')">Todas</button>
       </div>
 
-      <button type="button" class="btn-start" onclick="startSession()">Empezar Sesión</button>
+      <button class="btn-main" onclick="startApp()">Empezar Sesión</button>
     </div>
   </div>
 
-  <!-- PANTALLA 2: ESTUDIO -->
-  <div class="view-container hidden" id="studyView">
-    <div class="header">
-      <div class="stats" id="sessionStats">Palabra 1 de 10</div>
-      <button type="button" class="btn-exit" onclick="cancelSession()">Terminar</button>
+  <!-- 2. ESTUDIO -->
+  <div id="v-study" class="view">
+    <div style="display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.85rem;">
+      <span id="st-counter">Palabra 1 de 10</span>
+      <button onclick="goHome()" style="background: none; color: #94a3b8; font-weight: 600;">Salir</button>
     </div>
 
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
+    <div class="card">
+      <div id="card-id" class="card-id">#1</div>
+      <div id="card-prompt" class="prompt">word</div>
 
-    <div class="card-box" id="flashcardBox">
-      <div class="card-num" id="cardNum">#---</div>
-      <div class="prompt" id="cardPrompt">Word</div>
-      
-      <div id="flashcardModeContent" style="width: 100%; text-align: center;">
-        <div class="hint" id="cardHint" onclick="revealCard()">Toca aquí para ver significado</div>
+      <div id="area-flash" style="width: 100%;">
+        <button class="reveal-btn" onclick="reveal()">Toca para ver respuesta</button>
       </div>
 
-      <div id="typingModeContent" class="input-box hidden">
-        <input type="text" id="typeAnswer" class="text-input" placeholder="Escribe el significado..." autocomplete="off" autocapitalize="none">
-        <button type
+      <div id="area-write" style="width: 100%; display: none;">
+        <input type="text" id="in-write" class="input-write" placeholder="Escribe la traducción..." autocomplete="off">
+        <button class="btn-check" onclick="reveal()">Verificar</button>
+      </div>
+
+      <div id="card-ans" class="answer">traducción</div>
+    </div>
+
+    <div id="area-eval" class="eval-grid" style="display: none;">
+      <button class="btn-eval btn-f" onclick="answer('fail')">No la sé (✕)</button>
+      <button class="btn-eval btn-d" onclick="answer('doubt')">Duda (?)</button>
+      <button class="btn-eval btn-p" onclick="answer('pass')">La sé (✓)</button>
+    </div>
+  </div>
+
+  <!-- 3. RESULTADOS -->
+  <div id="v-res" class="view">
+    <div class="box">
+      <div class="title">Resultados</div>
+      <div id="res-score" class="score">0%</div>
+
+      <div class="row"><span>Conocidas:</span><strong id="res-p" style="color: #22c55e;">0</strong></div>
+      <div class="row"><span>Dudosas:</span><strong id="res-d" style="color: #eab308;">0</strong></div>
+      <div class="row"><span>Desconocidas:</span><strong id="res-f" style="color: #ef4444;">0</strong></div>
+
+      <div style="margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: #94a3b8;">DETALLE A REPASAR:</div>
+      <div id="res-list" class="list-box"></div>
+
+      <button class="btn-main" style="margin-top: 16px;" onclick="goHome()">Volver al Inicio</button>
+    </div>
+  </div>
+
+  <script>
+    var words = [
+      { id: 1, en: "a", es: "una / un" },
+      { id: 2, en: "ability", es: "capacidad" },
+      { id: 3, en: "able", es: "capaz / poder" },
+      { id: 4, en: "about", es: "acerca de / sobre" },
+      { id: 5, en: "above", es: "encima de / arriba" },
+      { id: 6, en: "access", es: "acceso" },
+      { id: 7, en: "accept", es: "aceptar" },
+      { id: 8, en: "accord", es: "acuerdo" },
+      { id: 9, en: "account", es: "cuenta" },
+      { id: 10, en: "achieve", es: "lograr / alcanzar" },
+      { id: 11, en: "across", es: "a través de" },
+      { id: 12, en: "act", es: "actuar / acto" },
+      { id: 13, en: "action", es: "acción" },
+      { id: 14, en: "activity", es: "actividad" },
+      { id: 15, en: "actually", es: "en realidad / de hecho" },
+      { id: 16, en: "add", es: "añadir / sumar" },
+      { id: 17, en: "addition", es: "adición" },
+      { id: 18, en: "address", es: "dirección" },
+      { id: 19, en: "adult", es: "adulto" },
+      { id: 20, en: "advance", es: "avanzar / avance" },
+      { id: 21, en: "advantage", es: "ventaja" },
+      { id: 22, en: "affect", es: "afectar" },
+      { id: 23, en: "after", es: "después" },
+      { id: 24, en: "afternoon", es: "tarde" },
+      { id: 25, en: "again", es: "otra vez" },
+      { id: 26, en: "against", es: "en contra" },
+      { id: 27, en: "age", es: "edad" },
+      { id: 28, en: "agency", es: "agencia" },
+      { id: 29, en: "agent", es: "agente" },
+      { id: 30, en: "ago", es: "hace (tiempo)" },
+      { id: 31, en: "agree", es: "estar de acuerdo" },
+      { id: 32, en: "agreement", es: "acuerdo" },
+      { id: 33, en: "ahead", es: "adelante" },
+      { id: 34, en: "aim", es: "objetivo / meta" },
+      { id: 35, en: "air", es: "aire" },
+      { id: 36, en: "all", es: "todos / todo" },
+      { id: 37, en: "allow", es: "permitir" },
+      { id: 38, en: "almost", es: "casi" },
+      { id: 39, en: "alone", es: "solo / sola" },
+      { id: 40, en: "along", es: "a lo largo" },
+      { id: 41, en: "already", es: "ya" },
+      { id: 42, en: "also", es: "además / también" },
+      { id: 43, en: "although", es: "a pesar de que" },
+      { id: 44, en: "always", es: "siempre" },
+      { id: 45, en: "among", es: "entre (varios)" },
+      { id: 46, en: "amount", es: "cantidad / monto" },
+      { id: 47, en: "analysis", es: "análisis" },
+      { id: 48, en: "and", es: "y" },
+      { id: 49, en: "animal", es: "animal" },
+      { id: 50, en: "another", es: "otro / otra" }
+    ];
+
+    var selMode = 'all';
+    var selMet = 'flash';
+    var selQ = 10;
+
+    var curList = [];
+    var curIdx = 0;
+    var counts = { p: [], d: [], f: [] };
+
+    function setMode(m) {
+      selMode = m;
+      document.getElementById('opt-mode-all').className = m === 'all' ? 'btn-choice active' : 'btn-choice';
+      document.getElementById('opt-mode-rev').className = m === 'rev' ? 'btn-choice active' : 'btn-choice';
+    }
+
+    function setMet(m) {
+      selMet = m;
+      document.getElementById('opt-met-flash').className = m === 'flash' ? 'btn-choice active' : 'btn-choice';
+      document.getElementById('opt-met-type').className = m === 'type' ? 'btn-choice active' : 'btn-choice';
+    }
+
+    function setQ(q) {
+      selQ = q;
+      document.getElementById('opt-q-10').className = q === 10 ? 'btn-choice active' : 'btn-choice';
+      document.getElementById('opt-q-20').className = q === 20 ? 'btn-choice active' : 'btn-choice';
+      document.getElementById('opt-q-50').className = q === 50 ? 'btn-choice active' : 'btn-choice';
+      document.getElementById('opt-q-all').className = q === 'all' ? 'btn-choice active' : 'btn-choice';
+    }
+
+    function getStore() {
+      try { return JSON.parse(localStorage.getItem('user_vocab')) || {}; } catch(e) { return {}; }
+    }
+
+    function saveStore(id, val) {
+      try {
+        var s = getStore();
+        s[id] = val;
+        localStorage.setItem('user_vocab', JSON.stringify(s));
+      } catch(e) {}
+    }
+
+    function startApp() {
+      var s = getStore();
+      if (selMode === 'rev') {
+        curList = words.filter(function(w) { return s[w.id] === 'fail' || s[w.id] === 'doubt'; });
+        if (curList.length === 0) {
+          alert("No tienes palabras falladas o dudosas guardadas todavía. Haz primero una sesión con el Test Inicial.");
+          return;
+        }
+      } else {
+        curList = words.slice();
+      }
+
+      if (selQ !== 'all') {
+        curList = curList.slice(0, parseInt(selQ, 10));
+      }
+
+      curIdx = 0;
+      counts = { p: [], d: [], f: [] };
+
+      document.getElementById('v-menu').className = 'view';
+      document.getElementById('v-study').className = 'view show';
+
+      loadWord();
+    }
+
+    function loadWord() {
+      if (curIdx >= curList.length) {
+        showRes();
+        return;
+      }
+
+      var item = curList[curIdx];
+      document.getElementById('card-id').innerText = '#' + item.id;
+      document.getElementById('card-prompt').innerText = item.en;
+      document.getElementById('card-ans').innerText = item.es;
+      document.getElementById('card-ans').style.display = 'none';
+      document.getElementById('area-eval').style.display = 'none';
+
+      document.getElementById('st-counter').innerText = 'Palabra ' + (curIdx + 1) + ' de ' + curList.length;
+
+      if (selMet === 'flash') {
+        document.getElementById('area-flash').style.display = 'block';
+        document.getElementById('area-write').style.display = 'none';
+      } else {
+        document.getElementById('area-flash').style.display = 'none';
+        document.getElementById('area-write').style.display = 'block';
+        document.getElementById('in-write').value = '';
+      }
+    }
+
+    function reveal() {
+      document.getElementById('card-ans').style.display = 'block';
+      document.getElementById('area-eval').style.display = 'grid';
+    }
+
+    function answer(type) {
+      var item = curList[curIdx];
+      if (type === 'pass') counts.p.push(item);
+      if (type === 'doubt') counts.d.push(item);
+      if (type === 'fail') counts.f.push(item);
+
+      saveStore(item.id, type);
+
+      curIdx++;
+      loadWord();
+    }
+
+    function showRes() {
+      document.getElementById('v-study').className = 'view';
+      document.getElementById('v-res').className = 'view show';
+
+      var pct = Math.round((counts.p.length / curList.length) * 100);
+      document.getElementById('res-score').innerText = pct + '%';
+      document.getElementById('res-p').innerText = counts.p.length;
+      document.getElementById('res-d').innerText = counts.d.length;
+      document.getElementById('res-f').innerText = counts.f.length;
+
+      var bad = counts.d.concat(counts.f);
+      var listEl = document.getElementById('res-list');
+      if (bad.length === 0) {
+        listEl.innerHTML = '<span style="color:#22c55e;">¡Perfecto! Todo acertado.</span>';
+      } else {
+        listEl.innerHTML = bad.map(function(w) {
+          return '• <strong>' + w.en + '</strong>: ' + w.es;
+        }).join('<br>');
+      }
+    }
+
+    function goHome() {
+      document.getElementById('v-study').className = 'view';
+      document.getElementById('v-res').className = 'view';
+      document.getElementById('v-menu').className = 'view show';
+    }
+  </script>
+</body>
+</html>
