@@ -93,7 +93,7 @@
     <main id="v-daily" class="view active">
       <div class="card-panel" id="resumePanel" style="display: none; border-color: var(--pass);">
         <h2>Tienes un test en progreso</h2>
-        <p class="desc" id="resumeText">Estás en la palabra X de 1000.</p>
+        <p class="desc" id="resumeText">Estás en la palabra X.</p>
         <button class="btn-action" style="background: var(--pass); color: #fff;" onclick="resumeDiagnostic()">Continuar Diagnóstico</button>
       </div>
 
@@ -155,7 +155,7 @@
     <!-- DICCIONARIO -->
     <section id="v-dict" class="view">
       <div class="card-panel">
-        <h2>Diccionario (1000 Palabras)</h2>
+        <h2>Diccionario</h2>
         <input type="text" id="searchDict" class="search-box" placeholder="Buscar en inglés o español..." onkeyup="filterDict()">
         <div id="dictList" class="dict-list"></div>
       </div>
@@ -168,7 +168,7 @@
   </nav>
 
   <script>
-    // BASE DE DATOS DE 1000 PALABRAS
+    // BASE DE DATOS DE PALABRAS
     var rawWordData = [
       "a|un / una", "ability|capacidad / habilidad", "able|capaz", "about|acerca de / sobre", "above|encima de / arriba",
       "accept|aceptar", "according|segun", "account|cuenta", "across|a traves de / al otro lado", "act|actuar / acto",
@@ -381,9 +381,9 @@
     var studyDirection = 'en-es';
     var studyQueue = [];
     var queueIdx = 0;
-    var sessionMode = ''; // 'daily' o 'diagnostic'
+    var sessionMode = ''; 
+    var advanceTimeout = null; // Para manejar interrupciones al retroceder
 
-    // DB Access
     function getStore() {
       try { return JSON.parse(localStorage.getItem('linguini_data')) || { words: {}, diagIndex: 0 }; } 
       catch(e) { return { words: {}, diagIndex: 0 }; }
@@ -397,7 +397,6 @@
       saveStore(s);
     }
 
-    // Init App
     window.onload = function() {
       var s = getStore();
       if (s.diagIndex > 0 && s.diagIndex < vocabulary.length) {
@@ -427,7 +426,6 @@
       document.getElementById('dir-es-en').classList.toggle('active', d === 'es-en');
     }
 
-    // Sesiones
     function startDailySession() {
       var store = getStore();
       var review = vocabulary.filter(w => store.words[w.id] === 'doubt' || store.words[w.id] === 'fail');
@@ -520,10 +518,8 @@
       var item = studyQueue[queueIdx];
       var userVal = cleanString(document.getElementById('typeInput').value);
       
-      // Respuestas validas según dirección
       var targetAnswers = studyDirection === 'en-es' ? item.es : item.en;
       var validOpts = targetAnswers.split('/').map(s => cleanString(s));
-      
       var matched = validOpts.some(opt => userVal.length > 1 && (opt === userVal || opt.includes(userVal)));
 
       document.getElementById('typeInput').disabled = true;
@@ -559,12 +555,13 @@
 
       if (sessionMode === 'diagnostic') saveDiagnosticProgress();
       
-      setTimeout(advanceWord, 400); // Pequeño delay para ver el icono
+      clearTimeout(advanceTimeout);
+      advanceTimeout = setTimeout(advanceWord, 450); 
     }
 
     function saveDiagnosticProgress() {
       var s = getStore();
-      s.diagIndex = queueIdx + 1; // Guarda el siguiente indice
+      s.diagIndex = queueIdx + 1;
       saveStore(s);
     }
 
@@ -573,20 +570,30 @@
       loadCard();
     }
 
+    // NUEVA FUNCIÓN CORREGIDA
     function goBackCard() {
+      clearTimeout(advanceTimeout); // Cancela el pase automático de página
       if (queueIdx > 0) {
         queueIdx--;
-        if (sessionMode === 'diagnostic') saveDiagnosticProgress();
+        
+        if (sessionMode === 'diagnostic') {
+          var s = getStore();
+          s.diagIndex = queueIdx; // Ajustar el guardado para reiniciar aquí
+          saveStore(s);
+        }
+        
         loadCard();
+      } else {
+        alert("Ya estás en la primera palabra de esta sesión.");
       }
     }
 
     function exitStudy() {
+      clearTimeout(advanceTimeout);
       switchTab('v-daily');
-      window.onload(); // Refrescar widget de resumen
+      window.onload(); 
     }
 
-    // Lógica del Diccionario
     function renderDictionary(filter = '') {
       var s = getStore().words;
       var listEl = document.getElementById('dictList');
@@ -597,7 +604,7 @@
 
       filtered.forEach(w => {
         var status = s[w.id];
-        var color = '#a1a1aa'; // Pendiente
+        var color = '#a1a1aa'; 
         if (status === 'pass') color = 'var(--pass)';
         if (status === 'doubt') color = 'var(--doubt)';
         if (status === 'fail') color = 'var(--fail)';
