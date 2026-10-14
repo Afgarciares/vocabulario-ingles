@@ -3,131 +3,251 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vocabulario</title>
+  <title>Lexicon 1000 — English Recall</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: #0f172a; color: #f8fafc; min-height: 100vh; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; }
-    .box { width: 100%; max-width: 400px; background: #1e293b; border-radius: 18px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-    .title { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
-    .sub { font-size: 0.85rem; color: #94a3b8; text-align: center; margin-bottom: 20px; }
-    
-    .label { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; display: block; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 20px; }
-    
-    button { cursor: pointer; border: none; font-size: 0.95rem; }
-    .btn-choice { background: #334155; color: #fff; padding: 12px 6px; border-radius: 10px; font-weight: 600; text-align: center; border: 2px solid transparent; }
-    .btn-choice.active { background: #0284c7; border-color: #38bdf8; }
-    
-    .btn-main { width: 100%; background: #38bdf8; color: #0f172a; font-weight: 700; padding: 15px; border-radius: 12px; font-size: 1rem; }
-    
+    :root {
+      --bg: #111113;
+      --surface: #18181b;
+      --surface-hover: #222227;
+      --border: #27272a;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #e4e4e7;
+      --pass: #22c55e;
+      --pass-bg: #14532d;
+      --doubt: #eab308;
+      --doubt-bg: #713f12;
+      --fail: #ef4444;
+      --fail-bg: #7f1d1d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 90px 16px; }
+
+    /* Contenedor Responsivo Global */
+    .app-shell { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; transition: max-width 0.2s ease; }
+
+    /* Barra Superior */
+    .top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .brand { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+    .brand-badge { background: var(--border); color: var(--text-main); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
+    .clock-container { font-size: 0.85rem; font-variant-numeric: tabular-nums; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .clock-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pass); display: inline-block; }
+
     /* Vistas */
-    .view { width: 100%; max-width: 400px; display: none; flex-direction: column; gap: 14px; }
-    .view.show { display: flex; }
-    
-    .card { background: #1e293b; border-radius: 18px; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; position: relative; text-align: center; }
-    .card-id { position: absolute; top: 14px; left: 16px; font-size: 0.8rem; color: #94a3b8; }
-    .prompt { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
-    .reveal-btn { color: #38bdf8; font-size: 0.95rem; text-decoration: underline; background: none; }
-    .answer { font-size: 1.7rem; color: #38bdf8; font-weight: 600; margin-top: 10px; display: none; }
-    
-    .input-write { width: 100%; padding: 12px; background: #0f172a; border: 2px solid #334155; border-radius: 10px; color: #fff; font-size: 1rem; text-align: center; margin-top: 10px; }
-    .btn-check { background: #334155; color: #fff; padding: 10px; border-radius: 8px; width: 100%; margin-top: 6px; font-weight: 600; }
+    .view { width: 100%; display: none; flex-direction: column; gap: 16px; }
+    .view.active { display: flex; }
 
-    .eval-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .btn-eval { padding: 14px 4px; border-radius: 10px; font-weight: 700; color: #fff; font-size: 0.85rem; }
-    .btn-f { background: #ef4444; }
-    .btn-d { background: #eab308; color: #000; }
-    .btn-p { background: #22c55e; }
+    /* Paneles y tarjetas */
+    .card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+    h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.3px; }
+    p.desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.45; }
 
-    .score { font-size: 2.8rem; font-weight: 800; color: #22c55e; text-align: center; margin: 10px 0; }
-    .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .list-box { background: #0f172a; padding: 12px; border-radius: 10px; max-height: 180px; overflow-y: auto; font-size: 0.85rem; line-height: 1.5; }
+    /* Botones generales */
+    button { cursor: pointer; border: none; font-size: 0.9rem; border-radius: 10px; font-weight: 500; transition: background 0.15s ease, opacity 0.15s ease; }
+    button:active { opacity: 0.8; }
+
+    .btn-action { background: var(--text-main); color: var(--bg); padding: 14px 18px; width: 100%; font-weight: 600; font-size: 0.95rem; }
+    .btn-action:hover { background: #e4e4e7; }
+    .btn-secondary { background: var(--border); color: var(--text-main); padding: 13px; width: 100%; margin-top: 8px; }
+    .btn-secondary:hover { background: var(--surface-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 11px; width: 100%; }
+    .btn-outline:hover { color: var(--text-main); border-color: var(--text-muted); }
+
+    /* Selector de Opciones */
+    .option-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .btn-chip { background: #1f1f23; border: 1px solid var(--border); color: var(--text-muted); padding: 12px; border-radius: 10px; text-align: center; font-weight: 600; }
+    .btn-chip.active { background: #2a2a30; color: var(--text-main); border-color: var(--text-muted); }
+
+    /* Tarjeta de Estudio */
+    .study-box { min-height: 270px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; padding: 32px 24px; border: 1px solid var(--border); background: var(--surface); border-radius: 14px; }
+    .word-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+    .meaning { font-size: 1.5rem; color: var(--accent); font-weight: 500; margin-top: 14px; display: none; }
+    .timer-sec { font-size: 0.85rem; font-variant-numeric: tabular-nums; color: var(--text-muted); margin-top: 10px; font-weight: 600; }
+
+    .input-clean { width: 100%; max-width: 360px; background: #111113; border: 1px solid var(--border); color: #fff; padding: 14px; border-radius: 10px; font-size: 1.05rem; text-align: center; outline: none; margin-top: 14px; transition: border-color 0.2s; }
+    .input-clean:focus { border-color: var(--text-muted); }
+
+    /* Botones de Calificación */
+    .grade-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
+    .btn-grade { padding: 14px 8px; font-size: 0.88rem; border-radius: 10px; color: #fff; font-weight: 600; text-align: center; }
+    .g-fail { background: var(--fail-bg); border: 1px solid var(--fail); }
+    .g-doubt { background: var(--doubt-bg); border: 1px solid var(--doubt); }
+    .g-pass { background: var(--pass-bg); border: 1px solid var(--pass); }
+
+    /* Métricas / Dashboard */
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .metric-card { background: #1c1c20; padding: 16px; border-radius: 10px; border: 1px solid var(--border); }
+    .metric-num { font-size: 2rem; font-weight: 700; }
+    .metric-sub { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 6px; letter-spacing: 0.4px; }
+
+    /* Modal de Alerta */
+    .alert-dialog { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 99; backdrop-filter: blur(4px); }
+    .alert-body { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; max-width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+    /* Navegación Móvil (Inferior) */
+    .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(17,17,19,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; max-width: 440px; margin: 0 auto; z-index: 10; }
+    .nav-btn { background: none; color: var(--text-muted); font-size: 0.85rem; padding: 10px 24px; font-weight: 500; border-radius: 8px; }
+    .nav-btn.active { color: var(--text-main); font-weight: 600; background: #222226; }
+
+    /* NAVEGACIÓN DESKTOP (Oculta en móvil por defecto) */
+    .desktop-nav { display: none; gap: 8px; }
+
+    /* ========================================================
+       MEDIA QUERIES PARA PANTALLAS GRANDES (PC / TABLET)
+       ======================================================== */
+    @media (min-width: 768px) {
+      body { padding: 40px 20px 40px 20px; }
+      .app-shell { max-width: 720px; }
+
+      /* En PC ocultamos la barra flotante de abajo y la pasamos arriba */
+      .nav-bottom { display: none; }
+      .desktop-nav { display: flex; }
+
+      .card-panel { padding: 32px; border-radius: 16px; }
+      .study-box { min-height: 320px; padding: 48px 32px; border-radius: 16px; }
+      .word-title { font-size: 3.2rem; }
+      .meaning { font-size: 1.8rem; }
+      
+      .metric-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+      .btn-action { font-size: 1rem; padding: 15px 24px; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- 1. CONFIGURACIÓN -->
-  <div id="v-menu" class="view show">
-    <div class="box">
-      <div class="title">Configurar Sesión</div>
-      <div class="sub">Elige tus preferencias de práctica</div>
-
-      <span class="label">1. Modo</span>
-      <div class="grid-2">
-        <button id="opt-mode-all" class="btn-choice active" onclick="setMode('all')">Test Inicial</button>
-        <button id="opt-mode-rev" class="btn-choice" onclick="setMode('rev')">Repasar Dudosas</button>
+  <div class="app-shell">
+    <!-- BARRA SUPERIOR ADAPTABLE -->
+    <header class="top-bar">
+      <div class="brand">
+        Lexicon <span class="brand-badge">1000</span>
       </div>
 
-      <span class="label">2. Método</span>
-      <div class="grid-2">
-        <button id="opt-met-flash" class="btn-choice active" onclick="setMet('flash')">Flashcards</button>
-        <button id="opt-met-type" class="btn-choice" onclick="setMet('type')">Escribir</button>
+      <!-- Menú para PC -->
+      <nav class="desktop-nav">
+        <button id="d-nav-daily" class="nav-btn active" onclick="switchTab('v-daily')">Práctica</button>
+        <button id="d-nav-prog" class="nav-btn" onclick="switchTab('v-progress')">Progreso & Auditoría</button>
+      </nav>
+
+      <div class="clock-container">
+        <span class="clock-dot"></span>
+        <span id="sessionTimerText">00:00</span>
+      </div>
+    </header>
+
+    <!-- VISTA 1: PRÁCTICA DIARIA -->
+    <main id="v-daily" class="view active">
+      <div class="card-panel">
+        <h2>Práctica Diaria (30 min)</h2>
+        <p class="desc">Distribución balanceada: consolidación activa de palabras previas dudosas más adquisición de nuevo vocabulario (hasta 20 palabras).</p>
+
+        <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Método de respuesta</label>
+        <div class="option-row">
+          <button id="m-flash" class="btn-chip active" onclick="setSessionMethod('flash')">Flashcard (Tocar / Espacio)</button>
+          <button id="m-type" class="btn-chip" onclick="setSessionMethod('type')">Escritura (Regla 5s)</button>
+        </div>
+
+        <button class="btn-action" onclick="startDailySession()">Iniciar rutina diaria</button>
       </div>
 
-      <span class="label">3. Cantidad</span>
-      <div class="grid-4">
-        <button id="opt-q-10" class="btn-choice active" onclick="setQ(10)">10</button>
-        <button id="opt-q-20" class="btn-choice" onclick="setQ(20)">20</button>
-        <button id="opt-q-50" class="btn-choice" onclick="setQ(50)">50</button>
-        <button id="opt-q-all" class="btn-choice" onclick="setQ('all')">Todas</button>
+      <div class="card-panel">
+        <h2>Test Diagnóstico Inicial</h2>
+        <p class="desc">Recorrido completo en una sola pasada para mapear tu nivel base sobre todo el vocabulario sin repeticiones en bucle.</p>
+        <button class="btn-secondary" onclick="startDiagnosticSession()">Comenzar / Continuar diagnóstico</button>
+      </div>
+    </main>
+
+    <!-- VISTA 2: SESIÓN DE ESTUDIO -->
+    <section id="v-study" class="view">
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
+        <span id="studyTag" style="font-weight: 600; color: var(--text-main);">Bloque Activo</span>
+        <span id="studyCounter">1 / 10</span>
       </div>
 
-      <button class="btn-main" onclick="startApp()">Empezar Sesión</button>
+      <div class="study-box">
+        <span id="cardId" style="position: absolute; top: 18px; left: 20px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">#1</span>
+        <div id="cardWord" class="word-title">Word</div>
+        <div id="cardMeaning" class="meaning">Significado</div>
+        <div id="typeTimerBadge" class="timer-sec" style="display: none;">0.0s</div>
+
+        <div id="writeZone" style="width: 100%; display: none;">
+          <input type="text" id="typeInput" class="input-clean" placeholder="Traduce al español y pulsa Enter..." autocomplete="off">
+          <button class="btn-action" style="margin-top: 12px; max-width: 360px;" id="btnSubmitWord" onclick="verifyTyping()">Comprobar</button>
+        </div>
+
+        <button id="btnRevealFlash" class="btn-outline" style="margin-top: 18px; max-width: 280px;" onclick="revealCard()">Mostrar traducción</button>
+      </div>
+
+      <!-- Controles de Autoevaluación -->
+      <div id="gradeControls" class="grade-grid" style="display: none;">
+        <button class="btn-grade g-fail" onclick="gradeAnswer('fail')">No la sé [1]</button>
+        <button class="btn-grade g-doubt" onclick="gradeAnswer('doubt')">Duda [2]</button>
+        <button class="btn-grade g-pass" onclick="gradeAnswer('pass')">La sé [3]</button>
+      </div>
+
+      <button id="btnNextWord" class="btn-action" style="display: none;" onclick="advanceWord()">Siguiente palabra (Enter)</button>
+      <button class="btn-outline" style="margin-top: 6px;" onclick="exitStudy()">Guardar y pausar sesión</button>
+    </section>
+
+    <!-- VISTA 3: PROGRESO Y AUDITORÍA -->
+    <section id="v-progress" class="view">
+      <div class="card-panel">
+        <h2>Progreso del Estudiante</h2>
+        <p class="desc">Estado de asimilación y cobertura analítica en memoria de largo plazo.</p>
+
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-num" id="pMastered" style="color: var(--pass);">0</div>
+            <div class="metric-sub">Dominadas</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-num" id="pDoubt" style="color: var(--doubt);">0</div>
+            <div class="metric-sub">Dudosas / Falladas</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-num" id="pTotalPct">0%</div>
+            <div class="metric-sub">Cobertura</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-num" id="pAccuracy">0%</div>
+            <div class="metric-sub">Precisión</div>
+          </div>
+        </div>
+
+        <button class="btn-action" onclick="exportPDFReport()">Descargar reporte en PDF</button>
+      </div>
+
+      <div class="card-panel">
+        <h2>Evaluación Mixta Semanal</h2>
+        <p class="desc">Prueba de auditoría bisemanal (hasta 2 por semana). Combina de forma aleatoria vocabulario conocido y nuevo para comprobar la curva del olvido.</p>
+        <button class="btn-secondary" onclick="startBiweeklyExam()">Tomar evaluación mixta</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL: PREVENCIÓN DE FATIGA (30 MINUTOS) -->
+  <div id="fatigueModal" class="alert-dialog">
+    <div class="alert-body">
+      <h2>Límite Óptimo de 30 min</h2>
+      <p class="desc" style="margin-top: 12px;">
+        Has alcanzado el tiempo de máxima concentración diaria. Continuar estudiando con fatiga reduce el rendimiento y satura la memoria de trabajo. <strong>Menos es más.</strong>
+      </p>
+      <button class="btn-action" onclick="closeFatigueModal()">Finalizar por hoy</button>
     </div>
   </div>
 
-  <!-- 2. ESTUDIO -->
-  <div id="v-study" class="view">
-    <div style="display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.85rem;">
-      <span id="st-counter">Palabra 1 de 10</span>
-      <button onclick="goHome()" style="background: none; color: #94a3b8; font-weight: 600;">Salir</button>
-    </div>
-
-    <div class="card">
-      <div id="card-id" class="card-id">#1</div>
-      <div id="card-prompt" class="prompt">word</div>
-
-      <div id="area-flash" style="width: 100%;">
-        <button class="reveal-btn" onclick="reveal()">Toca para ver respuesta</button>
-      </div>
-
-      <div id="area-write" style="width: 100%; display: none;">
-        <input type="text" id="in-write" class="input-write" placeholder="Escribe la traducción..." autocomplete="off">
-        <button class="btn-check" onclick="reveal()">Verificar</button>
-      </div>
-
-      <div id="card-ans" class="answer">traducción</div>
-    </div>
-
-    <div id="area-eval" class="eval-grid" style="display: none;">
-      <button class="btn-eval btn-f" onclick="answer('fail')">No la sé (✕)</button>
-      <button class="btn-eval btn-d" onclick="answer('doubt')">Duda (?)</button>
-      <button class="btn-eval btn-p" onclick="answer('pass')">La sé (✓)</button>
-    </div>
-  </div>
-
-  <!-- 3. RESULTADOS -->
-  <div id="v-res" class="view">
-    <div class="box">
-      <div class="title">Resultados</div>
-      <div id="res-score" class="score">0%</div>
-
-      <div class="row"><span>Conocidas:</span><strong id="res-p" style="color: #22c55e;">0</strong></div>
-      <div class="row"><span>Dudosas:</span><strong id="res-d" style="color: #eab308;">0</strong></div>
-      <div class="row"><span>Desconocidas:</span><strong id="res-f" style="color: #ef4444;">0</strong></div>
-
-      <div style="margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: #94a3b8;">DETALLE A REPASAR:</div>
-      <div id="res-list" class="list-box"></div>
-
-      <button class="btn-main" style="margin-top: 16px;" onclick="goHome()">Volver al Inicio</button>
-    </div>
-  </div>
+  <!-- BARRA DE NAVEGACIÓN INFERIOR (MÓVIL) -->
+  <nav class="nav-bottom">
+    <button id="m-nav-daily" class="nav-btn active" onclick="switchTab('v-daily')">Práctica</button>
+    <button id="m-nav-prog" class="nav-btn" onclick="switchTab('v-progress')">Progreso</button>
+  </nav>
 
   <script>
-    var words = [
+    // Vocabulario base
+    var vocabulary = [
       { id: 1, en: "a", es: "una / un" },
-      { id: 2, en: "ability", es: "capacidad" },
+      { id: 2, en: "ability", es: "capacidad / habilidad" },
       { id: 3, en: "able", es: "capaz / poder" },
       { id: 4, en: "about", es: "acerca de / sobre" },
       { id: 5, en: "above", es: "encima de / arriba" },
@@ -136,7 +256,7 @@
       { id: 8, en: "accord", es: "acuerdo" },
       { id: 9, en: "account", es: "cuenta" },
       { id: 10, en: "achieve", es: "lograr / alcanzar" },
-      { id: 11, en: "across", es: "a través de" },
+      { id: 11, en: "across", es: "a través de / al otro lado" },
       { id: 12, en: "act", es: "actuar / acto" },
       { id: 13, en: "action", es: "acción" },
       { id: 14, en: "activity", es: "actividad" },
@@ -150,7 +270,7 @@
       { id: 22, en: "affect", es: "afectar" },
       { id: 23, en: "after", es: "después" },
       { id: 24, en: "afternoon", es: "tarde" },
-      { id: 25, en: "again", es: "otra vez" },
+      { id: 25, en: "again", es: "otra vez / de nuevo" },
       { id: 26, en: "against", es: "en contra" },
       { id: 27, en: "age", es: "edad" },
       { id: 28, en: "agency", es: "agencia" },
@@ -170,7 +290,7 @@
       { id: 42, en: "also", es: "además / también" },
       { id: 43, en: "although", es: "a pesar de que" },
       { id: 44, en: "always", es: "siempre" },
-      { id: 45, en: "among", es: "entre (varios)" },
+      { id: 45, en: "among", es: "entre" },
       { id: 46, en: "amount", es: "cantidad / monto" },
       { id: 47, en: "analysis", es: "análisis" },
       { id: 48, en: "and", es: "y" },
@@ -178,138 +298,315 @@
       { id: 50, en: "another", es: "otro / otra" }
     ];
 
-    var selMode = 'all';
-    var selMet = 'flash';
-    var selQ = 10;
+    var studyMethod = 'flash';
+    var studyQueue = [];
+    var queueIdx = 0;
+    var currentSubSessionType = 'daily';
 
-    var curList = [];
-    var curIdx = 0;
-    var counts = { p: [], d: [], f: [] };
+    var sessionSeconds = 0;
+    var timerRunning = false;
+    var fatigueTriggered = false;
 
-    function setMode(m) {
-      selMode = m;
-      document.getElementById('opt-mode-all').className = m === 'all' ? 'btn-choice active' : 'btn-choice';
-      document.getElementById('opt-mode-rev').className = m === 'rev' ? 'btn-choice active' : 'btn-choice';
-    }
-
-    function setMet(m) {
-      selMet = m;
-      document.getElementById('opt-met-flash').className = m === 'flash' ? 'btn-choice active' : 'btn-choice';
-      document.getElementById('opt-met-type').className = m === 'type' ? 'btn-choice active' : 'btn-choice';
-    }
-
-    function setQ(q) {
-      selQ = q;
-      document.getElementById('opt-q-10').className = q === 10 ? 'btn-choice active' : 'btn-choice';
-      document.getElementById('opt-q-20').className = q === 20 ? 'btn-choice active' : 'btn-choice';
-      document.getElementById('opt-q-50').className = q === 50 ? 'btn-choice active' : 'btn-choice';
-      document.getElementById('opt-q-all').className = q === 'all' ? 'btn-choice active' : 'btn-choice';
-    }
+    var wordTimer = null;
+    var wordSeconds = 0;
 
     function getStore() {
-      try { return JSON.parse(localStorage.getItem('user_vocab')) || {}; } catch(e) { return {}; }
+      try { return JSON.parse(localStorage.getItem('lexicon_data')) || { words: {}, exams: [] }; } catch(e) { return { words: {}, exams: [] }; }
     }
 
-    function saveStore(id, val) {
-      try {
-        var s = getStore();
-        s[id] = val;
-        localStorage.setItem('user_vocab', JSON.stringify(s));
-      } catch(e) {}
+    function saveWord(id, status) {
+      var d = getStore();
+      d.words[id] = status;
+      localStorage.setItem('lexicon_data', JSON.stringify(d));
     }
 
-    function startApp() {
-      var s = getStore();
-      if (selMode === 'rev') {
-        curList = words.filter(function(w) { return s[w.id] === 'fail' || s[w.id] === 'doubt'; });
-        if (curList.length === 0) {
-          alert("No tienes palabras falladas o dudosas guardadas todavía. Haz primero una sesión con el Test Inicial.");
-          return;
+    // Cronómetro de sesión
+    setInterval(function() {
+      if (timerRunning) {
+        sessionSeconds++;
+        var m = Math.floor(sessionSeconds / 60);
+        var s = sessionSeconds % 60;
+        document.getElementById('sessionTimerText').innerText = 
+          (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+
+        if (sessionSeconds >= 1800 && !fatigueTriggered) {
+          fatigueTriggered = true;
+          document.getElementById('fatigueModal').style.display = 'flex';
         }
-      } else {
-        curList = words.slice();
       }
+    }, 1000);
 
-      if (selQ !== 'all') {
-        curList = curList.slice(0, parseInt(selQ, 10));
-      }
-
-      curIdx = 0;
-      counts = { p: [], d: [], f: [] };
-
-      document.getElementById('v-menu').className = 'view';
-      document.getElementById('v-study').className = 'view show';
-
-      loadWord();
+    function closeFatigueModal() {
+      document.getElementById('fatigueModal').style.display = 'none';
+      exitStudy();
     }
 
-    function loadWord() {
-      if (curIdx >= curList.length) {
-        showRes();
+    // Navegación sincrónica (Móvil y Escritorio)
+    function switchTab(viewId) {
+      document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+      document.getElementById(viewId).classList.add('active');
+
+      var isDaily = viewId === 'v-daily';
+      document.getElementById('m-nav-daily').classList.toggle('active', isDaily);
+      document.getElementById('d-nav-daily').classList.toggle('active', isDaily);
+      document.getElementById('m-nav-prog').classList.toggle('active', !isDaily);
+      document.getElementById('d-nav-prog').classList.toggle('active', !isDaily);
+
+      if (viewId === 'v-progress') updateMetrics();
+    }
+
+    function setSessionMethod(m) {
+      studyMethod = m;
+      document.getElementById('m-flash').classList.toggle('active', m === 'flash');
+      document.getElementById('m-type').classList.toggle('active', m === 'type');
+    }
+
+    function startDailySession() {
+      var store = getStore();
+      var reviewWords = vocabulary.filter(function(w) { return store.words[w.id] === 'doubt' || store.words[w.id] === 'fail'; });
+      var unstudied = vocabulary.filter(function(w) { return !store.words[w.id]; }).slice(0, 20);
+
+      studyQueue = reviewWords.concat(unstudied);
+      if (studyQueue.length === 0) {
+        alert("¡Has completado el material actual! Puedes realizar una evaluación mixta.");
         return;
       }
 
-      var item = curList[curIdx];
-      document.getElementById('card-id').innerText = '#' + item.id;
-      document.getElementById('card-prompt').innerText = item.en;
-      document.getElementById('card-ans').innerText = item.es;
-      document.getElementById('card-ans').style.display = 'none';
-      document.getElementById('area-eval').style.display = 'none';
+      currentSubSessionType = 'daily';
+      queueIdx = 0;
+      startStudyUI("Rutina Diaria (30 min)");
+    }
 
-      document.getElementById('st-counter').innerText = 'Palabra ' + (curIdx + 1) + ' de ' + curList.length;
+    function startDiagnosticSession() {
+      studyQueue = vocabulary.slice();
+      currentSubSessionType = 'diagnostic';
+      queueIdx = 0;
+      startStudyUI("Test Diagnóstico");
+    }
 
-      if (selMet === 'flash') {
-        document.getElementById('area-flash').style.display = 'block';
-        document.getElementById('area-write').style.display = 'none';
+    function startBiweeklyExam() {
+      var store = getStore();
+      var recentExams = (store.exams || []).filter(function(e) {
+        var diff = (new Date() - new Date(e.date)) / (1000 * 60 * 60 * 24);
+        return diff < 7;
+      });
+
+      if (recentExams.length >= 2) {
+        if (!confirm("Ya realizaste tus 2 evaluaciones de esta semana. ¿Deseas hacer una extra?")) return;
+      }
+
+      studyQueue = vocabulary.slice().sort(function() { return 0.5 - Math.random(); }).slice(0, 30);
+      currentSubSessionType = 'exam';
+      queueIdx = 0;
+      startStudyUI("Evaluación Bisemanal (30 Palabras)");
+    }
+
+    function startStudyUI(title) {
+      timerRunning = true;
+      document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+      document.getElementById('v-study').classList.add('active');
+      document.getElementById('studyTag').innerText = title;
+      loadCard();
+    }
+
+    function loadCard() {
+      clearInterval(wordTimer);
+      if (queueIdx >= studyQueue.length) {
+        finishStudy();
+        return;
+      }
+
+      var item = studyQueue[queueIdx];
+      document.getElementById('cardId').innerText = '#' + item.id;
+      document.getElementById('cardWord').innerText = item.en;
+      document.getElementById('cardMeaning').innerText = item.es;
+      document.getElementById('cardMeaning').style.display = 'none';
+      document.getElementById('gradeControls').style.display = 'none';
+      document.getElementById('btnNextWord').style.display = 'none';
+      document.getElementById('studyCounter').innerText = (queueIdx + 1) + " / " + studyQueue.length;
+
+      var timerEl = document.getElementById('typeTimerBadge');
+
+      if (studyMethod === 'type') {
+        document.getElementById('writeZone').style.display = 'block';
+        document.getElementById('btnRevealFlash').style.display = 'none';
+        var inp = document.getElementById('typeInput');
+        inp.value = '';
+        inp.disabled = false;
+        document.getElementById('btnSubmitWord').style.display = 'block';
+        timerEl.style.display = 'block';
+
+        wordSeconds = 0;
+        timerEl.innerText = '0.0s';
+        timerEl.style.color = 'var(--text-muted)';
+        wordTimer = setInterval(function() {
+          wordSeconds += 0.1;
+          timerEl.innerText = wordSeconds.toFixed(1) + 's';
+          if (wordSeconds > 5.0) timerEl.style.color = 'var(--doubt)';
+        }, 100);
+
+        setTimeout(function() { inp.focus(); }, 100);
       } else {
-        document.getElementById('area-flash').style.display = 'none';
-        document.getElementById('area-write').style.display = 'block';
-        document.getElementById('in-write').value = '';
+        document.getElementById('writeZone').style.display = 'none';
+        document.getElementById('btnRevealFlash').style.display = 'block';
+        timerEl.style.display = 'none';
       }
     }
 
-    function reveal() {
-      document.getElementById('card-ans').style.display = 'block';
-      document.getElementById('area-eval').style.display = 'grid';
+    function revealCard() {
+      document.getElementById('cardMeaning').style.display = 'block';
+      document.getElementById('btnRevealFlash').style.display = 'none';
+      document.getElementById('gradeControls').style.display = 'grid';
     }
 
-    function answer(type) {
-      var item = curList[curIdx];
-      if (type === 'pass') counts.p.push(item);
-      if (type === 'doubt') counts.d.push(item);
-      if (type === 'fail') counts.f.push(item);
-
-      saveStore(item.id, type);
-
-      curIdx++;
-      loadWord();
+    function cleanString(str) {
+      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
     }
 
-    function showRes() {
-      document.getElementById('v-study').className = 'view';
-      document.getElementById('v-res').className = 'view show';
+    function verifyTyping() {
+      clearInterval(wordTimer);
+      var userVal = cleanString(document.getElementById('typeInput').value);
+      var validOpts = studyQueue[queueIdx].es.split('/').map(function(s) { return cleanString(s); });
+      var matched = validOpts.some(function(opt) {
+        return userVal.length > 1 && (opt.indexOf(userVal) !== -1 || userVal.indexOf(opt) !== -1);
+      });
 
-      var pct = Math.round((counts.p.length / curList.length) * 100);
-      document.getElementById('res-score').innerText = pct + '%';
-      document.getElementById('res-p').innerText = counts.p.length;
-      document.getElementById('res-d').innerText = counts.d.length;
-      document.getElementById('res-f').innerText = counts.f.length;
+      document.getElementById('cardMeaning').style.display = 'block';
+      document.getElementById('typeInput').disabled = true;
+      document.getElementById('btnSubmitWord').style.display = 'none';
 
-      var bad = counts.d.concat(counts.f);
-      var listEl = document.getElementById('res-list');
-      if (bad.length === 0) {
-        listEl.innerHTML = '<span style="color:#22c55e;">¡Perfecto! Todo acertado.</span>';
+      if (matched) {
+        gradeAnswer(wordSeconds <= 5.0 ? 'pass' : 'doubt');
       } else {
-        listEl.innerHTML = bad.map(function(w) {
-          return '• <strong>' + w.en + '</strong>: ' + w.es;
-        }).join('<br>');
+        gradeAnswer('fail');
       }
     }
 
-    function goHome() {
-      document.getElementById('v-study').className = 'view';
-      document.getElementById('v-res').className = 'view';
-      document.getElementById('v-menu').className = 'view show';
+    function gradeAnswer(status) {
+      var item = studyQueue[queueIdx];
+      saveWord(item.id, status);
+
+      if (studyMethod === 'type') {
+        document.getElementById('btnNextWord').style.display = 'block';
+        document.getElementById('btnNextWord').focus();
+      } else {
+        advanceWord();
+      }
+    }
+
+    function advanceWord() {
+      queueIdx++;
+      loadCard();
+    }
+
+    function finishStudy() {
+      alert("Sesión finalizada.");
+      if (currentSubSessionType === 'exam') {
+        var s = getStore();
+        s.exams = s.exams || [];
+        s.exams.push({ date: new Date().toISOString() });
+        localStorage.setItem('lexicon_data', JSON.stringify(s));
+      }
+      exitStudy();
+    }
+
+    function exitStudy() {
+      clearInterval(wordTimer);
+      timerRunning = false;
+      switchTab('v-daily');
+    }
+
+    // Atajos de Teclado para PC
+    document.addEventListener('keydown', function(e) {
+      var studyActive = document.getElementById('v-study').classList.contains('active');
+      if (!studyActive) return;
+
+      if (e.key === 'Enter') {
+        if (studyMethod === 'type' && !document.getElementById('typeInput').disabled) {
+          verifyTyping();
+        } else if (document.getElementById('btnNextWord').style.display === 'block') {
+          advanceWord();
+        }
+      } else if (studyMethod === 'flash') {
+        if (e.key === ' ' && document.getElementById('btnRevealFlash').style.display !== 'none') {
+          e.preventDefault();
+          revealCard();
+        } else if (document.getElementById('gradeControls').style.display === 'grid') {
+          if (e.key === '1') gradeAnswer('fail');
+          if (e.key === '2') gradeAnswer('doubt');
+          if (e.key === '3') gradeAnswer('pass');
+        }
+      }
+    });
+
+    // Analítica
+    function updateMetrics() {
+      var store = getStore();
+      var wordsObj = store.words || {};
+      var total = vocabulary.length;
+
+      var pass = 0, doubt = 0, fail = 0;
+      Object.keys(wordsObj).forEach(function(k) {
+        if (wordsObj[k] === 'pass') pass++;
+        if (wordsObj[k] === 'doubt') doubt++;
+        if (wordsObj[k] === 'fail') fail++;
+      });
+
+      var studied = pass + doubt + fail;
+      var coverage = Math.round((studied / total) * 100);
+      var accuracy = studied > 0 ? Math.round((pass / studied) * 100) : 0;
+
+      document.getElementById('pMastered').innerText = pass;
+      document.getElementById('pDoubt').innerText = doubt + fail;
+      document.getElementById('pTotalPct').innerText = coverage + '%';
+      document.getElementById('pAccuracy').innerText = accuracy + '%';
+    }
+
+    // Exportación PDF
+    function exportPDFReport() {
+      var { jsPDF } = window.jspdf;
+      var doc = new jsPDF();
+      var store = getStore();
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("INFORME DE RENDIMIENTO — LEXICON 1000", 14, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text("Fecha: " + new Date().toLocaleDateString(), 14, 28);
+
+      var pass = 0, doubt = 0, fail = 0;
+      var badList = [];
+      vocabulary.forEach(function(item) {
+        var status = store.words[item.id];
+        if (status === 'pass') pass++;
+        if (status === 'doubt' || status === 'fail') {
+          if (status === 'doubt') doubt++;
+          if (status === 'fail') fail++;
+          badList.push(item);
+        }
+      });
+
+      doc.text("Dominadas: " + pass + " | Dudosas / Errores: " + (doubt + fail), 14, 36);
+      doc.line(14, 40, 196, 40);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Listado prioritario para repaso:", 14, 48);
+
+      doc.setFont("helvetica", "normal");
+      var y = 56;
+      if (badList.length === 0) {
+        doc.text("No tienes palabras marcadas con error o duda.", 14, y);
+      } else {
+        badList.forEach(function(w, idx) {
+          if (y > 275) { doc.addPage(); y = 20; }
+          doc.text((idx + 1) + ". " + w.en + "  —  " + w.es, 14, y);
+          y += 6;
+        });
+      }
+
+      doc.save("Reporte_Vocabulario_Lexicon.pdf");
     }
   </script>
 </body>
