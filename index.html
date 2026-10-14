@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Lexicon 1000 — English Recall</title>
+<title>LINGUINI 1000 — English Recall</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
@@ -15,11 +15,11 @@
 --text-muted: #a1a1aa;
 --accent: #e4e4e7;
 --pass: #22c55e;
---pass-bg: #14532d;
+--pass-bg: rgba(34, 197, 94, 0.15);
 --doubt: #eab308;
---doubt-bg: #713f12;
+--doubt-bg: rgba(234, 179, 8, 0.15);
 --fail: #ef4444;
---fail-bg: #7f1d1d;
+--fail-bg: rgba(239, 68, 68, 0.15);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
 body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 90px 16px; }
@@ -46,25 +46,31 @@ button:active { opacity: 0.8; }
 .btn-secondary:hover { background: var(--surface-hover); }
 .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 11px; width: 100%; }
 .btn-outline:hover { color: var(--text-main); border-color: var(--text-muted); }
-/* Botón X roja */
-.btn-giveup { background: var(--fail-bg); border: 1px solid var(--fail); color: #fff; padding: 13px; width: 100%; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; margin-top: 10px; font-size: 0.92rem; }
-.btn-giveup:hover { background: #991b1b; }
+/* Botón X roja limpia */
+.btn-x-red { background: #7f1d1d; border: 1px solid var(--fail); color: #fff; padding: 12px; width: 100%; font-weight: 700; font-size: 1.3rem; border-radius: 10px; margin-top: 10px; display: flex; align-items: center; justify-content: center; }
+.btn-x-red:hover { background: #991b1b; }
 /* Selectores */
 .option-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
 .btn-chip { background: #1f1f23; border: 1px solid var(--border); color: var(--text-muted); padding: 12px; border-radius: 10px; text-align: center; font-weight: 600; }
 .btn-chip.active { background: #2a2a30; color: var(--text-main); border-color: var(--text-muted); }
 /* Tarjeta de Estudio */
-.study-box { min-height: 270px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; padding: 32px 24px; border: 1px solid var(--border); background: var(--surface); border-radius: 14px; }
-.word-title { font-size: 2.7rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
-.meaning { font-size: 1.45rem; color: var(--accent); font-weight: 500; margin-top: 14px; display: none; line-height: 1.3; }
+.study-box { min-height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; padding: 32px 24px; border: 1px solid var(--border); background: var(--surface); border-radius: 14px; }
+.word-title { font-size: 2.7rem; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.5px; }
+.meaning { font-size: 1.4rem; color: var(--accent); font-weight: 500; margin-top: 12px; display: none; line-height: 1.3; }
+/* Indicador Visual de Acierto / Error */
+.feedback-badge { display: none; margin-top: 12px; font-size: 1.6rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; align-items: center; justify-content: center; gap: 8px; }
+.feedback-pass { display: inline-flex; color: var(--pass); background: var(--pass-bg); border: 1px solid var(--pass); }
+.feedback-fail { display: inline-flex; color: var(--fail); background: var(--fail-bg); border: 1px solid var(--fail); }
 .input-clean { width: 100%; max-width: 360px; background: #111113; border: 1px solid var(--border); color: #fff; padding: 14px; border-radius: 10px; font-size: 1.05rem; text-align: center; outline: none; margin-top: 14px; transition: border-color 0.2s; }
 .input-clean:focus { border-color: var(--text-muted); }
-/* Calificación */
+/* Calificación Flashcard */
 .grade-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
 .btn-grade { padding: 14px 8px; font-size: 0.88rem; border-radius: 10px; color: #fff; font-weight: 600; text-align: center; }
-.g-fail { background: var(--fail-bg); border: 1px solid var(--fail); }
-.g-doubt { background: var(--doubt-bg); border: 1px solid var(--doubt); }
-.g-pass { background: var(--pass-bg); border: 1px solid var(--pass); }
+.g-fail { background: #7f1d1d; border: 1px solid var(--fail); }
+.g-doubt { background: #713f12; border: 1px solid var(--doubt); }
+.g-pass { background: #14532d; border: 1px solid var(--pass); }
+/* Acciones al pie del estudio */
+.study-foot-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; width: 100%; }
 /* Métricas */
 .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
 .metric-card { background: #1c1c20; padding: 16px; border-radius: 10px; border: 1px solid var(--border); }
@@ -82,7 +88,7 @@ button:active { opacity: 0.8; }
 .tag-pass { background: rgba(34,197,94,0.15); color: var(--pass); border: 1px solid var(--pass); }
 .tag-doubt { background: rgba(234,179,8,0.15); color: var(--doubt); border: 1px solid var(--doubt); }
 .tag-fail { background: rgba(239,68,68,0.15); color: var(--fail); border: 1px solid var(--fail); }
-/* Modal de Alerta */
+/* Modal Alerta */
 .alert-dialog { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 99; backdrop-filter: blur(4px); }
 .alert-body { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; max-width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 /* Navegación Inferior (Móvil) */
@@ -109,11 +115,11 @@ body { padding: 40px 20px 40px 20px; }
 <div class="app-shell">
 <header class="top-bar">
 <div class="brand">
-Lexicon <span class="brand-badge">1000</span>
+LINGUINI <span class="brand-badge">1000</span>
 </div>
 <nav class="desktop-nav">
 <button id="d-nav-daily" class="nav-btn active" onclick="switchTab('v-daily')">Práctica</button>
-<button id="d-nav-dict" class="nav-btn" onclick="switchTab('v-dict')">1000 Palabras</button>
+<button id="d-nav-dict" class="nav-btn" onclick="switchTab('v-dict')">Diccionario</button>
 <button id="d-nav-prog" class="nav-btn" onclick="switchTab('v-progress')">Progreso</button>
 </nav>
 <div class="clock-container">
@@ -125,17 +131,17 @@ Lexicon <span class="brand-badge">1000</span>
 <main id="v-daily" class="view active">
 <div class="card-panel">
 <h2>Práctica Diaria (30 min)</h2>
-<p class="desc">Distribución balanceada: repaso activo de palabras dudosas o falladas, seguido de palabras nuevas (hasta 20 al día).</p>
+<p class="desc">Distribución estructurada: repaso activo de palabras dudosas o falladas, seguido de palabras nuevas (hasta 20 al día).</p>
 <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Método de respuesta</label>
 <div class="option-row">
-<button id="m-flash" class="btn-chip active" onclick="setSessionMethod('flash')">Flashcard (Tocar)</button>
-<button id="m-type" class="btn-chip" onclick="setSessionMethod('type')">Escribir respuesta</button>
+<button id="m-type" class="btn-chip active" onclick="setSessionMethod('type')">Escribir respuesta</button>
+<button id="m-flash" class="btn-chip" onclick="setSessionMethod('flash')">Flashcard (Tocar)</button>
 </div>
 <button class="btn-action" onclick="startDailySession()">Iniciar rutina diaria</button>
 </div>
 <div class="card-panel">
 <h2>Test Diagnóstico (1.000 Palabras)</h2>
-<p class="desc" id="diagDesc">Mapeo completo en una pasada. Guarda tu progreso automáticamente para que puedas pausar y retomar en cualquier momento sin perder tu avance.</p>
+<p class="desc" id="diagDesc">Mapeo completo en una pasada. Guarda tu progreso automáticamente para pausar y retomar en cualquier momento sin perder tu avance.</p>
 <button class="btn-secondary" id="btnDiagStart" onclick="startDiagnosticSession()">Comenzar / Continuar diagnóstico</button>
 </div>
 </main>
@@ -148,48 +154,52 @@ Lexicon <span class="brand-badge">1000</span>
 <div class="study-box">
 <span id="cardId" style="position: absolute; top: 18px; left: 20px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">#1</span>
 <div id="cardWord" class="word-title">Word</div>
+<!-- Indicador de acierto/error visual -->
+<div id="feedbackBadge" class="feedback-badge"></div>
 <div id="cardMeaning" class="meaning">Significado</div>
 <!-- Modo Escritura -->
 <div id="writeZone" style="width: 100%; display: none;">
 <input type="text" id="typeInput" class="input-clean" placeholder="Escribe el significado..." autocomplete="off">
 <button class="btn-action" style="margin-top: 12px; max-width: 360px;" id="btnSubmitWord" onclick="verifyTyping()">Comprobar</button>
-<button class="btn-giveup" style="max-width: 360px;" id="btnGiveUp" onclick="markAsUnknown()">✕ No la sé (Marcar error)</button>
+<button class="btn-x-red" style="max-width: 360px;" id="btnGiveUp" onclick="markAsUnknown()">✕</button>
 </div>
 <!-- Modo Flashcard -->
 <div id="flashZone" style="width: 100%; display: none; flex-direction: column; align-items: center;">
 <button id="btnRevealFlash" class="btn-outline" style="margin-top: 18px; max-width: 280px;" onclick="revealCard()">Mostrar traducción</button>
-<button class="btn-giveup" style="margin-top: 10px; max-width: 280px;" onclick="markAsUnknown()">✕ No la sé (Marcar error)</button>
+<button class="btn-x-red" style="margin-top: 10px; max-width: 280px;" onclick="markAsUnknown()">✕</button>
 </div>
 </div>
-<!-- Controles de Autoevaluación tras ver significado -->
+<!-- Calificación manual (solo modo Flashcard) -->
 <div id="gradeControls" class="grade-grid" style="display: none;">
-<button class="btn-grade g-fail" onclick="gradeAnswer('fail')">No la sé [1]</button>
-<button class="btn-grade g-doubt" onclick="gradeAnswer('doubt')">Duda [2]</button>
-<button class="btn-grade g-pass" onclick="gradeAnswer('pass')">La sé [3]</button>
+<button class="btn-grade g-fail" onclick="gradeAnswer('fail')">✕ No la sé [1]</button>
+<button class="btn-grade g-doubt" onclick="gradeAnswer('doubt')">? Duda [2]</button>
+<button class="btn-grade g-pass" onclick="gradeAnswer('pass')">✓ La sé [3]</button>
 </div>
 <button id="btnNextWord" class="btn-action" style="display: none;" onclick="advanceWord()">Siguiente palabra (Enter)</button>
-<button class="btn-outline" style="margin-top: 6px;" onclick="exitStudy()">Guardar y pausar sesión</button>
+<!-- Botones de Salida y Navegación hacia atrás -->
+<div class="study-foot-actions">
+<button class="btn-outline" onclick="goPreviousWord()">← Volver atrás</button>
+<button class="btn-outline" onclick="exitStudy()">Guardar y pausar</button>
+</div>
 </section>
-<!-- VISTA 3: DICCIONARIO / EXPLORADOR DE LAS 1000 PALABRAS -->
+<!-- VISTA 3: DICCIONARIO / BUSCADOR -->
 <section id="v-dict" class="view">
 <div class="card-panel">
 <h2>Diccionario de las 1.000 Palabras</h2>
-<p class="desc">Consulta cualquier palabra antes de empezar, verifica su traducción oficial y revisa tu estado actual.</p>
+<p class="desc">Consulta cualquier término antes de empezar, verifica su traducción y revisa tu estado de asimilación.</p>
 <input type="text" id="dictSearchInput" class="search-box" placeholder="Buscar por palabra en inglés o español..." oninput="filterDictionary()">
 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between;">
 <span id="dictResultCount">Mostrando 1000 palabras</span>
 <span>Corpus Oficial</span>
 </div>
-<div class="dict-list" id="dictItemsContainer">
-<!-- Palabras inyectadas dinámicamente -->
-</div>
+<div class="dict-list" id="dictItemsContainer"></div>
 </div>
 </section>
 <!-- VISTA 4: PROGRESO Y AUDITORÍA -->
 <section id="v-progress" class="view">
 <div class="card-panel">
 <h2>Progreso del Estudiante</h2>
-<p class="desc">Estado general de asimilación sobre el corpus de 1.000 palabras.</p>
+<p class="desc">Métricas consolidadas de retención en el corpus de 1.000 palabras de LINGUINI.</p>
 <div class="metric-grid">
 <div class="metric-card">
 <div class="metric-num" id="pMastered" style="color: var(--pass);">0</div>
@@ -230,7 +240,7 @@ Has alcanzado el tiempo de máxima concentración diaria recomendada. Continuar 
 <!-- NAVEGACIÓN MÓVIL (INFERIOR) -->
 <nav class="nav-bottom">
 <button id="m-nav-daily" class="nav-btn active" onclick="switchTab('v-daily')">Práctica</button>
-<button id="m-nav-dict" class="nav-btn" onclick="switchTab('v-dict')">1000 Palabras</button>
+<button id="m-nav-dict" class="nav-btn" onclick="switchTab('v-dict')">Diccionario</button>
 <button id="m-nav-prog" class="nav-btn" onclick="switchTab('v-progress')">Progreso</button>
 </nav>
 <script>
@@ -441,7 +451,7 @@ var vocabulary = rawWordData.map(function(item, idx) {
 var parts = item.split('|');
 return { id: idx + 1, en: parts[0], es: parts[1] };
 });
-var studyMethod = 'flash';
+var studyMethod = 'type';
 var studyQueue = [];
 var queueIdx = 0;
 var currentSubSessionType = 'daily';
@@ -450,7 +460,7 @@ var timerRunning = false;
 var fatigueTriggered = false;
 function getStore() {
 try {
-return JSON.parse(localStorage.getItem('lexicon_data')) || { words: {}, exams: [], diagIdx: 0 };
+return JSON.parse(localStorage.getItem('linguini_data')) || { words: {}, exams: [], diagIdx: 0 };
 } catch(e) {
 return { words: {}, exams: [], diagIdx: 0 };
 }
@@ -458,7 +468,7 @@ return { words: {}, exams: [], diagIdx: 0 };
 function saveWord(id, status) {
 var d = getStore();
 d.words[id] = status;
-localStorage.setItem('lexicon_data', JSON.stringify(d));
+localStorage.setItem('linguini_data', JSON.stringify(d));
 }
 function updateDiagButtonText() {
 var store = getStore();
@@ -475,7 +485,7 @@ desc.innerText = "Completaste el test de las 1.000 palabras. Puedes volver a rea
 btn.innerText = "Comenzar Test Diagnóstico (1000)";
 }
 }
-// Cronómetro de sesión total
+// Cronómetro general
 setInterval(function() {
 if (timerRunning) {
 sessionSeconds++;
@@ -510,10 +520,9 @@ if (viewId === 'v-daily') updateDiagButtonText();
 }
 function setSessionMethod(m) {
 studyMethod = m;
-document.getElementById('m-flash').classList.toggle('active', m === 'flash');
 document.getElementById('m-type').classList.toggle('active', m === 'type');
+document.getElementById('m-flash').classList.toggle('active', m === 'flash');
 }
-// Rutina Diaria (Repaso de fallos + hasta 20 nuevas)
 function startDailySession() {
 var store = getStore();
 var reviewWords = vocabulary.filter(function(w) { return store.words[w.id] === 'doubt' || store.words[w.id] === 'fail'; });
@@ -527,7 +536,6 @@ currentSubSessionType = 'daily';
 queueIdx = 0;
 startStudyUI("Rutina Diaria (30 min)");
 }
-// Test Diagnóstico persistente sobre las 1000
 function startDiagnosticSession() {
 var store = getStore();
 studyQueue = vocabulary.slice();
@@ -536,7 +544,6 @@ queueIdx = store.diagIdx || 0;
 if (queueIdx >= vocabulary.length) queueIdx = 0;
 startStudyUI("Test Diagnóstico (1.000 Palabras)");
 }
-// Examen Bisemanal
 function startBiweeklyExam() {
 var store = getStore();
 var recentExams = (store.exams || []).filter(function(e) {
@@ -563,11 +570,10 @@ if (queueIdx >= studyQueue.length) {
 finishStudy();
 return;
 }
-// Guardar índice de diagnóstico persistente
 if (currentSubSessionType === 'diagnostic') {
 var store = getStore();
 store.diagIdx = queueIdx;
-localStorage.setItem('lexicon_data', JSON.stringify(store));
+localStorage.setItem('linguini_data', JSON.stringify(store));
 }
 var item = studyQueue[queueIdx];
 document.getElementById('cardId').innerText = '#' + item.id;
@@ -576,6 +582,10 @@ document.getElementById('cardMeaning').innerText = item.es;
 document.getElementById('cardMeaning').style.display = 'none';
 document.getElementById('gradeControls').style.display = 'none';
 document.getElementById('btnNextWord').style.display = 'none';
+var badge = document.getElementById('feedbackBadge');
+badge.className = 'feedback-badge';
+badge.style.display = 'none';
+badge.innerHTML = '';
 document.getElementById('studyCounter').innerText = (queueIdx + 1) + " / " + studyQueue.length;
 if (studyMethod === 'type') {
 document.getElementById('writeZone').style.display = 'block';
@@ -584,7 +594,7 @@ var inp = document.getElementById('typeInput');
 inp.value = '';
 inp.disabled = false;
 document.getElementById('btnSubmitWord').style.display = 'block';
-document.getElementById('btnGiveUp').style.display = 'block';
+document.getElementById('btnGiveUp').style.display = 'flex';
 setTimeout(function() { inp.focus(); }, 100);
 } else {
 document.getElementById('writeZone').style.display = 'none';
@@ -597,9 +607,23 @@ document.getElementById('cardMeaning').style.display = 'block';
 document.getElementById('btnRevealFlash').style.display = 'none';
 document.getElementById('gradeControls').style.display = 'grid';
 }
-// Botón directo "No la sé (X)"
 function markAsUnknown() {
-gradeAnswer('fail');
+var item = studyQueue[queueIdx];
+saveWord(item.id, 'fail');
+var badge = document.getElementById('feedbackBadge');
+badge.className = 'feedback-badge feedback-fail';
+badge.innerHTML = '✕';
+badge.style.display = 'inline-flex';
+document.getElementById('cardMeaning').style.display = 'block';
+if (studyMethod === 'type') {
+document.getElementById('typeInput').disabled = true;
+document.getElementById('btnSubmitWord').style.display = 'none';
+document.getElementById('btnGiveUp').style.display = 'none';
+document.getElementById('btnNextWord').style.display = 'block';
+document.getElementById('btnNextWord').focus();
+} else {
+advanceWord();
+}
 }
 function cleanString(str) {
 return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
@@ -611,42 +635,52 @@ var validOpts = studyQueue[queueIdx].es.split('/').map(function(s) { return clea
 var matched = validOpts.some(function(opt) {
 return userVal.length > 1 && (opt.indexOf(userVal) !== -1 || userVal.indexOf(opt) !== -1);
 });
+var badge = document.getElementById('feedbackBadge');
+if (matched) {
+badge.className = 'feedback-badge feedback-pass';
+badge.innerHTML = '✓';
+saveWord(studyQueue[queueIdx].id, 'pass');
+} else {
+badge.className = 'feedback-badge feedback-fail';
+badge.innerHTML = '✕';
+saveWord(studyQueue[queueIdx].id, 'fail');
+}
+badge.style.display = 'inline-flex';
 document.getElementById('cardMeaning').style.display = 'block';
 document.getElementById('typeInput').disabled = true;
 document.getElementById('btnSubmitWord').style.display = 'none';
 document.getElementById('btnGiveUp').style.display = 'none';
-if (matched) {
-gradeAnswer('pass');
-} else {
-gradeAnswer('fail');
-}
+document.getElementById('btnNextWord').style.display = 'block';
+document.getElementById('btnNextWord').focus();
 }
 function gradeAnswer(status) {
 var item = studyQueue[queueIdx];
 saveWord(item.id, status);
-document.getElementById('cardMeaning').style.display = 'block';
-if (studyMethod === 'type') {
-document.getElementById('btnNextWord').style.display = 'block';
-document.getElementById('btnNextWord').focus();
-} else {
 advanceWord();
-}
 }
 function advanceWord() {
 queueIdx++;
 loadCard();
+}
+function goPreviousWord() {
+if (queueIdx > 0) {
+queueIdx--;
+loadCard();
+} else {
+exitStudy();
+}
 }
 function finishStudy() {
 alert("¡Sesión completada con éxito!");
 if (currentSubSessionType === 'diagnostic') {
 var store = getStore();
 store.diagIdx = vocabulary.length;
-localStorage.setItem('lexicon_data', JSON.stringify(store));
+localStorage.setItem('linguini_data', JSON.stringify(store));
 } else if (currentSubSessionType === 'exam') {
 var s = getStore();
 s.exams = s.exams || [];
 s.exams.push({ date: new Date().toISOString() });
-localStorage.setItem('lexicon_data', JSON.stringify(s));
+localStorage.setItem('linguini_data', JSON.stringify(s));
 }
 exitStudy();
 }
@@ -654,7 +688,7 @@ function exitStudy() {
 timerRunning = false;
 switchTab('v-daily');
 }
-// Diccionario y buscador en vivo
+// Diccionario
 function renderDictionary(list) {
 var container = document.getElementById('dictItemsContainer');
 var store = getStore();
@@ -738,7 +772,7 @@ var doc = new jsPDF();
 var store = getStore();
 doc.setFont("helvetica", "bold");
 doc.setFontSize(16);
-doc.text("INFORME DE RENDIMIENTO — LEXICON 1000", 14, 20);
+doc.text("INFORME DE RENDIMIENTO — LINGUINI 1000", 14, 20);
 doc.setFont("helvetica", "normal");
 doc.setFontSize(10);
 doc.text("Fecha: " + new Date().toLocaleDateString(), 14, 28);
@@ -768,7 +802,7 @@ doc.text((idx + 1) + ". " + w.en + "  —  " + w.es, 14, y);
 y += 6;
 });
 }
-doc.save("Reporte_Vocabulario_Lexicon.pdf");
+doc.save("Reporte_Vocabulario_Linguini.pdf");
 }
 updateDiagButtonText();
 </script>
