@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Repaso 1000 Palabras</title>
+  <title>Vocabulario 1000 Palabras</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -17,170 +17,158 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem; }
-    .header { width: 100%; max-width: 420px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .stats { font-size: 0.9rem; color: var(--subtext); }
-    .toggle-btn { background: #334155; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
     
-    .card-container { width: 100%; max-width: 420px; height: 320px; perspective: 1000px; margin-bottom: 1.5rem; }
-    .card { width: 100%; height: 100%; background: var(--card-bg); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: transform 0.2s; position: relative; }
-    .card:active { transform: scale(0.98); }
-    .card-num { position: absolute; top: 16px; left: 16px; font-size: 0.8rem; color: var(--subtext); }
-    .prompt { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; word-break: break-word; }
-    .hint { font-size: 0.85rem; color: var(--subtext); }
+    /* Contenedores generales */
+    .view-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 1.2rem; }
+    .hidden { display: none !important; }
+
+    /* Pantalla de Inicio / Menú */
+    .menu-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .title { font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 0.85rem; color: var(--subtext); text-align: center; margin-bottom: 1.5rem; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .form-label { font-size: 0.85rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .select-btn { background: #334155; border: 2px solid transparent; color: #fff; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; text-align: center; font-size: 0.9rem; }
+    .select-btn.active { border-color: var(--accent); background: #0284c7; }
+
+    .qty-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .qty-btn { background: #334155; border: 2px solid transparent; color: #fff; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; text-align: center; }
+    .qty-btn.active { border-color: var(--accent); background: #0284c7; }
+
+    .btn-start { background: var(--accent); color: #0f172a; font-weight: 700; padding: 16px; border-radius: 14px; border: none; font-size: 1.05rem; cursor: pointer; margin-top: 1rem; width: 100%; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); }
+
+    /* Barra de progreso y encabezado */
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .stats { font-size: 0.9rem; font-weight: 600; color: var(--subtext); }
+    .btn-exit { background: none; border: none; color: var(--subtext); font-size: 0.85rem; cursor: pointer; }
+    .progress-bar { width: 100%; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+
+    /* Tarjetas de estudio */
+    .card-box { width: 100%; min-height: 260px; background: var(--card-bg); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 1.5rem; position: relative; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .card-num { position: absolute; top: 16px; left: 16px; font-size: 0.85rem; color: var(--subtext); }
+    .prompt { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.8rem; }
+    .hint { font-size: 0.9rem; color: var(--subtext); cursor: pointer; }
     .translation { font-size: 1.8rem; color: var(--accent); font-weight: 600; margin-top: 1rem; display: none; }
-    
-    .controls { width: 100%; max-width: 420px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .btn { border: none; padding: 14px 10px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; color: #fff; transition: opacity 0.2s; }
-    .btn:active { opacity: 0.8; }
-    .btn-hard { background: var(--red); }
-    .btn-good { background: var(--yellow); }
-    .btn-easy { background: var(--green); }
-    .hidden { visibility: hidden; }
+
+    /* Modo Escritura */
+    .input-box { width: 100%; margin-top: 1rem; display: flex; flex-direction: column; gap: 8px; }
+    .text-input { width: 100%; background: #0f172a; border: 2px solid #334155; padding: 12px; border-radius: 10px; color: #fff; font-size: 1rem; text-align: center; outline: none; }
+    .text-input:focus { border-color: var(--accent); }
+    .btn-verify { background: #334155; color: #fff; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+
+    /* Botones de calificación */
+    .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; }
+    .btn-eval { border: none; padding: 14px 8px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #fff; }
+    .btn-fail { background: var(--red); }
+    .btn-doubt { background: var(--yellow); color: #000; }
+    .btn-pass { background: var(--green); }
+
+    /* Resultados */
+    .results-score { font-size: 2.6rem; font-weight: 800; color: var(--green); text-align: center; }
+    .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.95rem; }
+    .words-box { max-height: 180px; overflow-y: auto; background: #0f172a; padding: 12px; border-radius: 10px; font-size: 0.85rem; line-height: 1.5; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="stats" id="stats">Cargando...</div>
-    <button class="toggle-btn" id="modeBtn" onclick="toggleMode()">Modo: EN ➔ ES</button>
-  </div>
+  <!-- PANTALLA 1: MENÚ DE CONFIGURACIÓN -->
+  <div class="view-container" id="menuView">
+    <div class="menu-card">
+      <div class="title">Configurar Sesión</div>
+      <div class="subtitle">Personaliza tu práctica diaria de inglés</div>
 
-  <div class="card-container">
-    <div class="card" id="flashcard" onclick="flipCard()">
-      <div class="card-num" id="cardNum">#---</div>
-      <div class="prompt" id="cardPrompt">...</div>
-      <div class="hint" id="cardHint">Toca para voltear</div>
-      <div class="translation" id="cardTranslation">...</div>
+      <!-- Objetivo / Modo -->
+      <div class="form-group">
+        <label class="form-label">1. Tipo de sesión</label>
+        <div class="select-grid">
+          <button class="select-btn active" id="btnModeDiagnostic" onclick="setSessionMode('all')">Test Inicial (Todo)</button>
+          <button class="select-btn" id="btnModeReview" onclick="setSessionMode('review')">Repasar Dudosas/Malas</button>
+        </div>
+      </div>
+
+      <!-- Método -->
+      <div class="form-group">
+        <label class="form-label">2. Método de práctica</label>
+        <div class="select-grid">
+          <button class="select-btn active" id="btnMethodFlashcard" onclick="setMethod('flashcard')">Flashcards (Tocar)</button>
+          <button class="select-btn" id="btnMethodTyping" onclick="setMethod('typing')">Escribir respuesta</button>
+        </div>
+      </div>
+
+      <!-- Cantidad de palabras -->
+      <div class="form-group">
+        <label class="form-label">3. Palabras por sesión</label>
+        <div class="qty-grid">
+          <button class="qty-btn active" onclick="setQuantity(10)">10</button>
+          <button class="qty-btn" onclick="setQuantity(20)">20</button>
+          <button class="qty-btn" onclick="setQuantity(50)">50</button>
+          <button class="qty-btn" onclick="setQuantity('all')">Todas</button>
+        </div>
+      </div>
+
+      <button class="btn-start" onclick="startSession()">Empezar Sesión</button>
     </div>
   </div>
 
-  <div class="controls hidden" id="actionControls">
-    <button class="btn btn-hard" onclick="answerCard('hard')">Difícil</button>
-    <button class="btn btn-good" onclick="answerCard('good')">Bien</button>
-    <button class="btn btn-easy" onclick="answerCard('easy')">Fácil</button>
+  <!-- PANTALLA 2: SESIÓN DE ESTUDIO -->
+  <div class="view-container hidden" id="studyView">
+    <div class="header">
+      <div class="stats" id="sessionStats">Palabra 1 de 10</div>
+      <button class="btn-exit" onclick="cancelSession()">Terminar</button>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card-box" id="flashcardBox">
+      <div class="card-num" id="cardNum">#---</div>
+      <div class="prompt" id="cardPrompt">Word</div>
+      
+      <!-- Vista Flashcard -->
+      <div id="flashcardModeContent" style="width: 100%; text-align: center;">
+        <div class="hint" id="cardHint" onclick="revealCard()">Toca aquí para ver significado</div>
+      </div>
+
+      <!-- Vista Escritura -->
+      <div id="typingModeContent" class="input-box hidden">
+        <input type="text" id="typeAnswer" class="text-input" placeholder="Escribe el significado..." autocomplete="off" autocapitalize="none">
+        <button class="btn-verify" onclick="checkTypingAnswer()">Comprobar</button>
+      </div>
+
+      <div class="translation" id="cardTranslation">Traducción</div>
+    </div>
+
+    <!-- Botones de autoevaluación -->
+    <div class="controls hidden" id="actionControls">
+      <button class="btn-eval btn-fail" onclick="evaluateAnswer('fail')">No la sé (✕)</button>
+      <button class="btn-eval btn-doubt" onclick="evaluateAnswer('doubt')">Duda (?)</button>
+      <button class="btn-eval btn-pass" onclick="evaluateAnswer('pass')">La sé (✓)</button>
+    </div>
   </div>
 
-  <script>
-    // Base de datos de palabras del PDF
-    const dictionary = [
-      { id: 1, en: "a", es: "una" },
-      { id: 2, en: "ability", es: "capacidad" },
-      { id: 3, en: "able", es: "poder" },
-      { id: 4, en: "about", es: "acerca de" },
-      { id: 5, en: "above", es: "encima" },
-      { id: 6, en: "access", es: "acceso" },
-      { id: 7, en: "accept", es: "aceptar" },
-      { id: 8, en: "accord", es: "acuerdo" },
-      { id: 9, en: "account", es: "cuenta" },
-      { id: 10, en: "achieve", es: "lograr" },
-      { id: 11, en: "across", es: "a través de" },
-      { id: 12, en: "act", es: "acto" },
-      { id: 13, en: "action", es: "acción" },
-      { id: 14, en: "activity", es: "actividad" },
-      { id: 15, en: "actually", es: "en realidad / de hecho" },
-      { id: 16, en: "add", es: "añadir" },
-      { id: 17, en: "addition", es: "adición" },
-      { id: 18, en: "address", es: "dirección" },
-      { id: 19, en: "adult", es: "adulto" },
-      { id: 20, en: "advance", es: "avanzar" },
-      { id: 21, en: "advantage", es: "ventaja" },
-      { id: 22, en: "affect", es: "afectar" },
-      { id: 23, en: "after", es: "después" },
-      { id: 24, en: "afternoon", es: "tarde" },
-      { id: 25, en: "again", es: "otra vez" },
-      { id: 26, en: "against", es: "en contra" },
-      { id: 27, en: "age", es: "años" },
-      { id: 28, en: "agency", es: "agencia" },
-      { id: 29, en: "agent", es: "agente" },
-      { id: 30, en: "ago", es: "hace" },
-      { id: 31, en: "agree", es: "de acuerdo" },
-      { id: 32, en: "agreement", es: "acuerdo" },
-      { id: 33, en: "ahead", es: "adelante" },
-      { id: 34, en: "aim", es: "objetivo" },
-      { id: 35, en: "air", es: "aire" },
-      { id: 36, en: "all", es: "todos" },
-      { id: 37, en: "allow", es: "permitir" },
-      { id: 38, en: "almost", es: "casi" },
-      { id: 39, en: "alone", es: "solo" },
-      { id: 40, en: "along", es: "a lo largo" },
-      { id: 41, en: "already", es: "ya" },
-      { id: 42, en: "also", es: "además" },
-      { id: 43, en: "although", es: "a pesar de que" },
-      { id: 44, en: "always", es: "siempre" },
-      { id: 45, en: "among", es: "entre" },
-      { id: 46, en: "amount", es: "cantidad" },
-      { id: 47, en: "analysis", es: "análisis" },
-      { id: 48, en: "and", es: "y" },
-      { id: 49, en: "animal", es: "animal" },
-      { id: 50, en: "another", es: "otro" }
-      // Puedes anexar el resto del diccionario manteniendo el mismo formato
-    ];
+  <!-- PANTALLA 3: RESULTADOS -->
+  <div class="view-container hidden" id="resultsView">
+    <div class="menu-card" style="display: flex; flex-direction: column; gap: 1rem;">
+      <div class="title">Resultados de la sesión</div>
+      <div class="results-score" id="scorePercent">0%</div>
 
-    let studyList = JSON.parse(localStorage.getItem('vocabSRS')) || dictionary.map(item => ({
-      ...item,
-      interval: 1,
-      reps: 0
-    }));
+      <div class="stat-row">
+        <span>Conocidas (✓):</span>
+        <strong style="color: var(--green);" id="countPass">0</strong>
+      </div>
+      <div class="stat-row">
+        <span>Dudosas (?):</span>
+        <strong style="color: var(--yellow);" id="countDoubt">0</strong>
+      </div>
+      <div class="stat-row">
+        <span>Desconocidas (✕):</span>
+        <strong style="color: var(--red);" id="countFail">0</strong>
+      </div>
 
-    let currentIndex = 0;
-    let isFlipped = false;
-    let modeEnToEs = true;
-
-    function saveState() {
-      localStorage.setItem('vocabSRS', JSON.stringify(studyList));
-    }
-
-    function updateCard() {
-      if (studyList.length === 0) return;
-      isFlipped = false;
-      document.getElementById('actionControls').classList.add('hidden');
-      document.getElementById('cardTranslation').style.display = 'none';
-      document.getElementById('cardHint').style.display = 'block';
-
-      const current = studyList[currentIndex];
-      document.getElementById('cardNum').textContent = `#${current.id}`;
-      document.getElementById('cardPrompt').textContent = modeEnToEs ? current.en : current.es;
-      document.getElementById('cardTranslation').textContent = modeEnToEs ? current.es : current.en;
-      document.getElementById('stats').textContent = `Palabra ${currentIndex + 1} de ${studyList.length}`;
-    }
-
-    function flipCard() {
-      if (isFlipped) return;
-      isFlipped = true;
-      document.getElementById('cardTranslation').style.display = 'block';
-      document.getElementById('cardHint').style.display = 'none';
-      document.getElementById('actionControls').classList.remove('hidden');
-    }
-
-    function answerCard(level) {
-      let card = studyList[currentIndex];
-      card.reps += 1;
-
-      if (level === 'hard') {
-        card.interval = 1; // Se repite en la misma sesión o muy pronto
-        // Mueve la palabra unas posiciones más adelante para repasarla hoy
-        studyList.splice(currentIndex, 1);
-        studyList.splice(Math.min(currentIndex + 4, studyList.length), 0, card);
-      } else if (level === 'good') {
-        card.interval *= 2;
-        currentIndex = (currentIndex + 1) % studyList.length;
-      } else if (level === 'easy') {
-        card.interval *= 3;
-        currentIndex = (currentIndex + 1) % studyList.length;
-      }
-
-      saveState();
-      updateCard();
-    }
-
-    function toggleMode() {
-      modeEnToEs = !modeEnToEs;
-      document.getElementById('modeBtn').textContent = modeEnToEs ? "Modo: EN ➔ ES" : "Modo: ES ➔ EN";
-      updateCard();
-    }
-
-    // Inicializar
-    updateCard();
-  </script>
-</body>
-</html>
+      <div style="font-weight: 600; font-size: 0.85rem; color: var(--subtext); margin-top: 5px;">PALABRAS PARA REPASO:</div>
+      <div
