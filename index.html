@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Repaso 1000 Palabras</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --subtext: #94a3b8;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem; }
+    .header { width: 100%; max-width: 420px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .stats { font-size: 0.9rem; color: var(--subtext); }
+    .toggle-btn { background: #334155; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+    
+    .card-container { width: 100%; max-width: 420px; height: 320px; perspective: 1000px; margin-bottom: 1.5rem; }
+    .card { width: 100%; height: 100%; background: var(--card-bg); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: transform 0.2s; position: relative; }
+    .card:active { transform: scale(0.98); }
+    .card-num { position: absolute; top: 16px; left: 16px; font-size: 0.8rem; color: var(--subtext); }
+    .prompt { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; word-break: break-word; }
+    .hint { font-size: 0.85rem; color: var(--subtext); }
+    .translation { font-size: 1.8rem; color: var(--accent); font-weight: 600; margin-top: 1rem; display: none; }
+    
+    .controls { width: 100%; max-width: 420px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .btn { border: none; padding: 14px 10px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; color: #fff; transition: opacity 0.2s; }
+    .btn:active { opacity: 0.8; }
+    .btn-hard { background: var(--red); }
+    .btn-good { background: var(--yellow); }
+    .btn-easy { background: var(--green); }
+    .hidden { visibility: hidden; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="stats" id="stats">Cargando...</div>
+    <button class="toggle-btn" id="modeBtn" onclick="toggleMode()">Modo: EN ➔ ES</button>
+  </div>
+
+  <div class="card-container">
+    <div class="card" id="flashcard" onclick="flipCard()">
+      <div class="card-num" id="cardNum">#---</div>
+      <div class="prompt" id="cardPrompt">...</div>
+      <div class="hint" id="cardHint">Toca para voltear</div>
+      <div class="translation" id="cardTranslation">...</div>
+    </div>
+  </div>
+
+  <div class="controls hidden" id="actionControls">
+    <button class="btn btn-hard" onclick="answerCard('hard')">Difícil</button>
+    <button class="btn btn-good" onclick="answerCard('good')">Bien</button>
+    <button class="btn btn-easy" onclick="answerCard('easy')">Fácil</button>
+  </div>
+
+  <script>
+    // Base de datos de palabras del PDF
+    const dictionary = [
+      { id: 1, en: "a", es: "una" },
+      { id: 2, en: "ability", es: "capacidad" },
+      { id: 3, en: "able", es: "poder" },
+      { id: 4, en: "about", es: "acerca de" },
+      { id: 5, en: "above", es: "encima" },
+      { id: 6, en: "access", es: "acceso" },
+      { id: 7, en: "accept", es: "aceptar" },
+      { id: 8, en: "accord", es: "acuerdo" },
+      { id: 9, en: "account", es: "cuenta" },
+      { id: 10, en: "achieve", es: "lograr" },
+      { id: 11, en: "across", es: "a través de" },
+      { id: 12, en: "act", es: "acto" },
+      { id: 13, en: "action", es: "acción" },
+      { id: 14, en: "activity", es: "actividad" },
+      { id: 15, en: "actually", es: "en realidad / de hecho" },
+      { id: 16, en: "add", es: "añadir" },
+      { id: 17, en: "addition", es: "adición" },
+      { id: 18, en: "address", es: "dirección" },
+      { id: 19, en: "adult", es: "adulto" },
+      { id: 20, en: "advance", es: "avanzar" },
+      { id: 21, en: "advantage", es: "ventaja" },
+      { id: 22, en: "affect", es: "afectar" },
+      { id: 23, en: "after", es: "después" },
+      { id: 24, en: "afternoon", es: "tarde" },
+      { id: 25, en: "again", es: "otra vez" },
+      { id: 26, en: "against", es: "en contra" },
+      { id: 27, en: "age", es: "años" },
+      { id: 28, en: "agency", es: "agencia" },
+      { id: 29, en: "agent", es: "agente" },
+      { id: 30, en: "ago", es: "hace" },
+      { id: 31, en: "agree", es: "de acuerdo" },
+      { id: 32, en: "agreement", es: "acuerdo" },
+      { id: 33, en: "ahead", es: "adelante" },
+      { id: 34, en: "aim", es: "objetivo" },
+      { id: 35, en: "air", es: "aire" },
+      { id: 36, en: "all", es: "todos" },
+      { id: 37, en: "allow", es: "permitir" },
+      { id: 38, en: "almost", es: "casi" },
+      { id: 39, en: "alone", es: "solo" },
+      { id: 40, en: "along", es: "a lo largo" },
+      { id: 41, en: "already", es: "ya" },
+      { id: 42, en: "also", es: "además" },
+      { id: 43, en: "although", es: "a pesar de que" },
+      { id: 44, en: "always", es: "siempre" },
+      { id: 45, en: "among", es: "entre" },
+      { id: 46, en: "amount", es: "cantidad" },
+      { id: 47, en: "analysis", es: "análisis" },
+      { id: 48, en: "and", es: "y" },
+      { id: 49, en: "animal", es: "animal" },
+      { id: 50, en: "another", es: "otro" }
+      // Puedes anexar el resto del diccionario manteniendo el mismo formato
+    ];
+
+    let studyList = JSON.parse(localStorage.getItem('vocabSRS')) || dictionary.map(item => ({
+      ...item,
+      interval: 1,
+      reps: 0
+    }));
+
+    let currentIndex = 0;
+    let isFlipped = false;
+    let modeEnToEs = true;
+
+    function saveState() {
+      localStorage.setItem('vocabSRS', JSON.stringify(studyList));
+    }
+
+    function updateCard() {
+      if (studyList.length === 0) return;
+      isFlipped = false;
+      document.getElementById('actionControls').classList.add('hidden');
+      document.getElementById('cardTranslation').style.display = 'none';
+      document.getElementById('cardHint').style.display = 'block';
+
+      const current = studyList[currentIndex];
+      document.getElementById('cardNum').textContent = `#${current.id}`;
+      document.getElementById('cardPrompt').textContent = modeEnToEs ? current.en : current.es;
+      document.getElementById('cardTranslation').textContent = modeEnToEs ? current.es : current.en;
+      document.getElementById('stats').textContent = `Palabra ${currentIndex + 1} de ${studyList.length}`;
+    }
+
+    function flipCard() {
+      if (isFlipped) return;
+      isFlipped = true;
+      document.getElementById('cardTranslation').style.display = 'block';
+      document.getElementById('cardHint').style.display = 'none';
+      document.getElementById('actionControls').classList.remove('hidden');
+    }
+
+    function answerCard(level) {
+      let card = studyList[currentIndex];
+      card.reps += 1;
+
+      if (level === 'hard') {
+        card.interval = 1; // Se repite en la misma sesión o muy pronto
+        // Mueve la palabra unas posiciones más adelante para repasarla hoy
+        studyList.splice(currentIndex, 1);
+        studyList.splice(Math.min(currentIndex + 4, studyList.length), 0, card);
+      } else if (level === 'good') {
+        card.interval *= 2;
+        currentIndex = (currentIndex + 1) % studyList.length;
+      } else if (level === 'easy') {
+        card.interval *= 3;
+        currentIndex = (currentIndex + 1) % studyList.length;
+      }
+
+      saveState();
+      updateCard();
+    }
+
+    function toggleMode() {
+      modeEnToEs = !modeEnToEs;
+      document.getElementById('modeBtn').textContent = modeEnToEs ? "Modo: EN ➔ ES" : "Modo: ES ➔ EN";
+      updateCard();
+    }
+
+    // Inicializar
+    updateCard();
+  </script>
+</body>
+</html>
