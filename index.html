@@ -1,657 +1,341 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>LINGUINI 1000</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root {
---bg: #111113;
---surface: #18181b;
---surface-hover: #222227;
---border: #27272a;
---text-main: #f4f4f5;
---text-muted: #a1a1aa;
---accent: #e4e4e7;
---pass: #22c55e;
---doubt: #eab308;
---fail: #ef4444;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 90px 16px; }
-.app-shell { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; }
-/* Header */
-.top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
-.brand { font-size: 1rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); }
-.view { width: 100%; display: none; flex-direction: column; gap: 16px; }
-.view.active { display: flex; }
-/* Tarjetas UI */
-.card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
-h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
-p.desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.45; }
-/* Botones y Selectores */
-button { cursor: pointer; border: none; font-size: 0.95rem; border-radius: 10px; font-weight: 600; }
-button:active { opacity: 0.7; }
-.btn-action { background: var(--text-main); color: var(--bg); padding: 14px; width: 100%; margin-top: 10px; }
-.btn-secondary { background: var(--border); color: var(--text-main); padding: 12px; width: 100%; }
-.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 12px; width: 100%; }
-.option-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-.btn-chip { background: #1f1f23; border: 1px solid var(--border); color: var(--text-muted); padding: 12px; border-radius: 10px; }
-.btn-chip.active { background: #2a2a30; color: var(--text-main); border-color: var(--text-muted); }
-/* Zona de Estudio */
-.study-box { min-height: 270px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 32px 24px; border: 1px solid var(--border); background: var(--surface); border-radius: 14px; position: relative; }
-.counter { position: absolute; top: 16px; right: 16px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
-.word-title { font-size: 2.6rem; font-weight: 700; margin-bottom: 12px; }
-.meaning { font-size: 1.5rem; color: var(--text-muted); font-weight: 500; margin-top: 14px; display: none; }
-.input-clean { width: 100%; background: #111113; border: 2px solid var(--border); color: #fff; padding: 14px; border-radius: 10px; font-size: 1.1rem; text-align: center; outline: none; margin-top: 14px; }
-.input-clean:focus { border-color: var(--text-muted); }
-/* Indicadores de Feedback Visual */
-.feedback-icon { font-size: 2rem; font-weight: bold; margin-top: 10px; display: none; }
-.fc-pass { color: var(--pass); }
-.fc-fail { color: var(--fail); }
-/* Botón X Roja y Calificación */
-.btn-x-red { background: rgba(239, 68, 68, 0.15); color: var(--fail); border: 2px solid var(--fail); padding: 14px; border-radius: 10px; font-size: 1.2rem; font-weight: bold; width: 100%; margin-top: 10px; }
-.grade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
-.btn-grade { padding: 14px; border-radius: 10px; color: #fff; font-size: 0.9rem; }
-/* Diccionario */
-.search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); margin-bottom: 16px; font-size: 1rem; }
-.dict-list { max-height: 500px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-.dict-item { background: var(--surface); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
-.dict-word { font-weight: 600; font-size: 1rem; }
-.dict-trans { font-size: 0.9rem; color: var(--text-muted); }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; }
-/* Métricas / Dashboard */
-.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-.metric-card { background: #1c1c20; padding: 16px; border-radius: 10px; border: 1px solid var(--border); }
-.metric-num { font-size: 2rem; font-weight: 700; }
-.metric-sub { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 6px; letter-spacing: 0.4px; }
-/* Navegación Inferior */
-.nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(17,17,19,0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; max-width: 440px; margin: 0 auto; z-index: 10; }
-.nav-btn { background: none; color: var(--text-muted); font-size: 0.85rem; padding: 10px 20px; border-radius: 8px; }
-.nav-btn.active { color: var(--text-main); background: #222226; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LINGUINI 1000</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #111113; --surface: #18181b; --border: #27272a;
+      --text-main: #f4f4f5; --text-muted: #a1a1aa;
+      --pass: #22c55e; --doubt: #eab308; --fail: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 90px 16px; }
+    .app-shell { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; }
+    .top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .brand { font-size: 1rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); }
+    .view { width: 100%; display: none; flex-direction: column; gap: 16px; }
+    .view.active { display: flex; }
+    .card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+    h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
+    p.desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.45; }
+    button { cursor: pointer; border: none; font-size: 0.95rem; border-radius: 10px; font-weight: 600; }
+    button:active { opacity: 0.7; }
+    .btn-action { background: var(--text-main); color: var(--bg); padding: 14px; width: 100%; margin-top: 10px; }
+    .btn-secondary { background: var(--border); color: var(--text-main); padding: 12px; width: 100%; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 12px; width: 100%; }
+    .option-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .btn-chip { background: #1f1f23; border: 1px solid var(--border); color: var(--text-muted); padding: 12px; border-radius: 10px; }
+    .btn-chip.active { background: #2a2a30; color: var(--text-main); border-color: var(--text-muted); }
+    .study-box { min-height: 270px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 32px 24px; border: 1px solid var(--border); background: var(--surface); border-radius: 14px; position: relative; }
+    .counter { position: absolute; top: 16px; right: 16px; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .word-title { font-size: 2.6rem; font-weight: 700; margin-bottom: 12px; }
+    .meaning { font-size: 1.5rem; color: var(--text-muted); font-weight: 500; margin-top: 14px; display: none; }
+    .input-clean { width: 100%; background: #111113; border: 2px solid var(--border); color: #fff; padding: 14px; border-radius: 10px; font-size: 1.1rem; text-align: center; outline: none; margin-top: 14px; }
+    .feedback-icon { font-size: 2rem; font-weight: bold; margin-top: 10px; display: none; }
+    .fc-pass { color: var(--pass); } .fc-fail { color: var(--fail); }
+    .btn-x-red { background: rgba(239, 68, 68, 0.15); color: var(--fail); border: 2px solid var(--fail); padding: 14px; border-radius: 10px; font-size: 1.2rem; font-weight: bold; width: 100%; margin-top: 10px; }
+    .grade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
+    .btn-grade { padding: 14px; border-radius: 10px; color: #fff; font-size: 0.9rem; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .metric-card { background: #1c1c20; padding: 16px; border-radius: 10px; border: 1px solid var(--border); }
+    .metric-num { font-size: 2rem; font-weight: 700; }
+    .metric-sub { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 6px; }
+    .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); margin-bottom: 16px; font-size: 1rem; }
+    .dict-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .dict-item { background: var(--surface); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(17,17,19,0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; max-width: 440px; margin: 0 auto; z-index: 10; }
+    .nav-btn { background: none; color: var(--text-muted); font-size: 0.85rem; padding: 10px 24px; border-radius: 8px; }
+    .nav-btn.active { color: var(--text-main); background: #222226; }
+  </style>
 </head>
 <body>
-<div class="app-shell">
-<header class="top-bar">
-<div class="brand">LINGUINI 1000</div>
-</header>
-<!-- MENÚ PRINCIPAL -->
-<main id="v-daily" class="view active">
-<div class="card-panel" id="resumePanel" style="display: none; border-color: var(--pass);">
-<h2>Tienes un test en progreso</h2>
-<p class="desc" id="resumeText">Estás en la palabra X.</p>
-<button class="btn-action" style="background: var(--pass); color: #fff;" onclick="resumeDiagnostic()">Continuar Diagnóstico</button>
-</div>
-<div class="card-panel">
-<h2>Configurar Práctica</h2>
-<label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;">DIRECCIÓN DEL IDIOMA</label>
-<div class="option-row">
-<button id="dir-en-es" class="btn-chip active" onclick="setDirection('en-es')">Inglés → Español</button>
-<button id="dir-es-en" class="btn-chip" onclick="setDirection('es-en')">Español → Inglés</button>
-</div>
-<label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;">MÉTODO DE RESPUESTA</label>
-<div class="option-row">
-<button id="m-flash" class="btn-chip active" onclick="setMethod('flash')">Flashcard</button>
-<button id="m-type" class="btn-chip" onclick="setMethod('type')">Escritura</button>
-</div>
-<button class="btn-action" onclick="startDailySession()">Iniciar Rutina Diaria</button>
-<button class="btn-secondary" style="margin-top:10px;" onclick="startDiagnosticSession()">Nuevo Test Diagnóstico Completo</button>
-</div>
-</main>
-<!-- VISTA DE ESTUDIO -->
-<section id="v-study" class="view">
-<div class="study-box">
-<div id="studyCounter" class="counter">1 / 1000</div>
-<div id="cardPrompt" class="word-title">Word</div>
-<div id="cardAnswer" class="meaning">Significado</div>
-<div id="visualFeedback" class="feedback-icon"></div>
-<!-- Zona Escritura -->
-<div id="writeZone" style="width: 100%; display: none;">
-<input type="text" id="typeInput" class="input-clean" placeholder="Escribe tu respuesta..." autocomplete="off">
-<button id="btnSubmitWord" class="btn-action" onclick="verifyTyping()">Comprobar</button>
-</div>
-<button id="btnRevealFlash" class="btn-outline" style="margin-top: 20px;" onclick="revealCard()">Ver Respuesta</button>
-</div>
-<!-- Controles de Evaluación -->
-<button id="btnSkipX" class="btn-x-red" onclick="gradeAnswer('fail')">✕</button>
-<div id="gradeControls" class="grade-grid" style="display: none;">
-<button class="btn-grade" style="background: #713f12; border: 1px solid var(--doubt);" onclick="gradeAnswer('doubt')">Duda (?)</button>
-<button class="btn-grade" style="background: #14532d; border: 1px solid var(--pass);" onclick="gradeAnswer('pass')">La sé (✓)</button>
-</div>
-<button id="btnNextWord" class="btn-action" style="display: none;" onclick="advanceWord()">Siguiente Palabra</button>
-<!-- Botones de navegación de sesión -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-<button class="btn-secondary" onclick="goBackCard()">← Volver atrás</button>
-<button class="btn-secondary" onclick="exitStudy()">Guardar y salir</button>
-</div>
-</section>
-<!-- DICCIONARIO -->
-<section id="v-dict" class="view">
-<div class="card-panel">
-<h2>Diccionario</h2>
-<input type="text" id="searchDict" class="search-box" placeholder="Buscar en inglés o español..." onkeyup="filterDict()">
-<div id="dictList" class="dict-list"></div>
-</div>
-</section>
-<!-- PROGRESO Y PDF -->
-<section id="v-progress" class="view">
-<div class="card-panel">
-<h2>Progreso del Estudiante</h2>
-<p class="desc">Estado de asimilación y retención en la memoria.</p>
-<div class="metric-grid">
-<div class="metric-card">
-<div class="metric-num" id="pMastered" style="color: var(--pass);">0</div>
-<div class="metric-sub">Dominadas</div>
-</div>
-<div class="metric-card">
-<div class="metric-num" id="pDoubt" style="color: var(--doubt);">0</div>
-<div class="metric-sub">Dudosas / Falladas</div>
-</div>
-<div class="metric-card">
-<div class="metric-num" id="pTotalPct">0%</div>
-<div class="metric-sub">Cobertura</div>
-</div>
-<div class="metric-card">
-<div class="metric-num" id="pAccuracy">0%</div>
-<div class="metric-sub">Precisión</div>
-</div>
-</div>
-<button class="btn-action" onclick="exportPDFReport()">Descargar reporte en PDF</button>
-</div>
-<div class="card-panel">
-<h2>Evaluación Mixta Semanal</h2>
-<p class="desc">Prueba de auditoría. Combina vocabulario conocido y dudosas de forma aleatoria.</p>
-<button class="btn-secondary" onclick="startBiweeklyExam()">Tomar evaluación mixta</button>
-</div>
-</section>
-</div>
-<nav class="nav-bottom">
-<button id="nav-daily" class="nav-btn active" onclick="switchTab('v-daily')">Práctica</button>
-<button id="nav-dict" class="nav-btn" onclick="switchTab('v-dict')">Diccionario</button>
-<button id="nav-prog" class="nav-btn" onclick="switchTab('v-progress')">Progreso</button>
-</nav>
-<script>
-// BASE DE DATOS DE PALABRAS
-var rawWordData = [
-"a|un / una", "ability|capacidad / habilidad", "able|capaz", "about|acerca de / sobre", "above|encima de / arriba",
-"accept|aceptar", "according|segun", "account|cuenta", "across|a traves de / al otro lado", "act|actuar / acto",
-"action|accion", "activity|actividad", "actually|en realidad / de hecho", "add|anadir / sumar", "address|direccion / dirigir",
-"administration|administracion", "admit|admitir", "adult|adulto", "affect|afectar", "after|despues",
-"again|otra vez / de nuevo", "against|en contra", "age|edad / era", "agency|agencia", "agent|agente",
-"ago|hace (tiempo)", "agree|estar de acuerdo", "agreement|acuerdo", "ahead|adelante", "air|aire",
-"all|todo / todos", "allow|permitir", "almost|casi", "alone|solo / sola", "along|a lo largo de",
-"already|ya", "also|tambien / ademas", "although|a pesar de que / aunque", "always|siempre", "American|estadounidense / americano",
-"among|entre (varios)", "amount|cantidad / monto", "analysis|analisis", "and|y", "animal|animal",
-"another|otro / otra", "answer|respuesta / responder", "any|cualquier / alguno", "anyone|cualquiera / alguien", "anything|cualquier cosa / algo",
-"appear|aparecer", "apply|aplicar / solicitar", "approach|enfoque / acercarse", "area|area / zona", "argue|discutir / argumentar",
-"arm|brazo", "around|alrededor", "arrive|llegar", "art|arte", "article|articulo",
-"artist|artista", "as|como / mientras", "ask|preguntar / pedir", "assume|asumir", "at|en",
-"attack|ataque / atacar", "attention|atencion", "attorney|abogado", "audience|audiencia / publico", "author|autor",
-"authority|autoridad", "available|disponible", "avoid|evitar", "away|lejos / fuera", "baby|bebe",
-"back|atras / espalda", "bad|malo", "bag|bolsa", "ball|pelota / balon", "bank|banco",
-"bar|barra / bar", "base|base / basar", "be|ser / estar", "beat|vencer / golpear", "beautiful|hermoso / bello",
-"because|porque", "become|llegar a ser / convertirse", "bed|cama", "before|antes", "begin|comenzar / empezar",
-"behavior|comportamiento / conducta", "behind|detras", "believe|creer", "benefit|beneficio", "best|mejor",
-"better|mejor", "between|entre (dos)", "beyond|mas alla de", "big|grande", "bill|factura / cuenta",
-"billion|mil millones", "bit|un poco / pedazo", "black|negro", "blood|sangre", "blue|azul",
-"board|junta / tabla", "body|cuerpo", "book|libro", "born|nacido", "both|ambos",
-"box|caja", "boy|nino / chico", "break|romper / descanso", "bring|traer", "brother|hermano",
-"budget|presupuesto", "build|construir", "building|edificio", "business|negocio / empresa", "but|pero",
-"buy|comprar", "by|por / cerca de", "call|llamar", "camera|camara", "campaign|campana",
-"can|poder / lata", "cancer|cancer", "candidate|candidato", "capital|capital", "car|auto / coche",
-"card|tarjeta", "care|cuidado / importar", "career|carrera", "carry|llevar / cargar", "case|caso",
-"catch|atrapar / agarrar", "cause|causa / causar", "cell|celda / celula", "center|centro", "central|central",
-"century|siglo", "certain|cierto / seguro", "certainly|ciertamente", "chair|silla", "challenge|desafio / reto",
-"chance|oportunidad / casualidad", "change|cambio / cambiar", "character|personaje / caracter", "charge|cargo / cobrar", "check|verificar / cheque",
-"child|nino / hijo", "choice|opcion / eleccion", "choose|elegir / escoger", "church|iglesia", "citizen|ciudadano",
-"city|ciudad", "civil|civil", "claim|afirmar / reclamar", "class|clase", "clear|claro",
-"clearly|claramente", "close|cerrar / cerca", "coach|entrenador", "cold|frio", "collection|coleccion",
-"college|universidad", "color|color", "come|venir", "commercial|comercial", "common|comun",
-"community|comunidad", "company|compania / empresa", "compare|comparar", "computer|computadora", "concern|preocupacion / concernir",
-"condition|condicion", "conference|conferencia", "Congress|Congreso", "consider|considerar", "consumer|consumidor",
-"contain|contener", "continue|continuar", "control|control / controlar", "cost|costo / costar", "could|podria / pudo",
-"country|pais", "couple|pareja", "course|curso", "court|corte / tribunal", "cover|cubrir / portada",
-"create|crear", "crime|crimen", "cultural|cultural", "culture|cultura", "cup|taza",
-"current|actual / corriente", "currently|actualmente", "customer|cliente", "cut|cortar", "dark|oscuro",
-"data|datos", "daughter|hija", "day|dia", "dead|muerto", "deal|trato / acuerdo",
-"death|muerte", "debate|debate", "decade|decada", "decide|decidir", "decision|decision",
-"deep|profundo", "defense|defensa", "degree|grado / licenciatura", "Democrat|democrata", "democratic|democratico",
-"describe|describir", "design|diseno / disenar", "despite|a pesar de", "detail|detalle", "determine|determinar",
-"develop|desarrollar", "development|desarrollo", "die|morir", "difference|diferencia", "different|diferente",
-"difficult|dificil", "dinner|cena", "direction|direccion", "director|director", "discover|descubrir",
-"discuss|discutir / debatir", "discussion|discusion", "disease|enfermedad", "do|hacer", "doctor|medico / doctor",
-"dog|perro", "door|puerta", "down|abajo", "draw|dibujar / trazar", "dream|sueno / sonar",
-"drive|conducir / manejar", "drop|soltar / gota", "drug|droga / medicamento", "during|durante", "each|cada",
-"early|temprano", "east|este / oriente", "easy|facil", "eat|comer", "economic|economico",
-"economy|economia", "edge|borde / orilla", "education|educacion", "effect|efecto", "effort|esfuerzo",
-"eight|ocho", "either|ya sea / tampoco", "election|eleccion", "else|mas / otro", "employee|empleado",
-"end|fin / terminar", "energy|energia", "enjoy|disfrutar", "enough|suficiente", "enter|entrar",
-"entire|entero / completo", "environment|medio ambiente", "environmental|ambiental", "especially|especialmente", "establish|establecer",
-"even|incluso / aun", "evening|noche / atardecer", "event|evento", "ever|alguna vez", "every|cada",
-"everybody|todos / todo el mundo", "everyone|todos", "everything|todo", "evidence|evidencia / prueba", "exactly|exactamente",
-"example|ejemplo", "executive|ejecutivo", "exist|existir", "expect|esperar / prever", "experience|experiencia",
-"expert|experto", "explain|explicar", "eye|ojo", "face|cara / enfrentar", "fact|hecho",
-"factor|factor", "fail|fallar / fracasar", "fall|caer / otono", "family|familia", "far|lejos",
-"fast|rapido", "father|padre", "fear|miedo / temer", "federal|federal", "feel|sentir",
-"feeling|sentimiento", "few|pocos", "field|campo", "fight|pelear / lucha", "figure|figura / calcular",
-"fill|llenar", "film|pelicula", "final|final", "finally|finalmente", "financial|financiero",
-"find|encontrar", "fine|bien / multa", "finger|dedo", "finish|terminar", "fire|fuego / disparar / despedir",
-"firm|firma / empresa / firme", "first|primero", "fish|pez / pescar", "five|cinco", "floor|piso / suelo",
-"fly|volar / mosca", "focus|enfoque / enfocar", "follow|seguir", "food|comida / alimento", "foot|pie",
-"for|para / por", "force|fuerza / forzar", "foreign|extranjero", "forget|olvidar", "form|forma / formulario",
-"former|anterior / ex", "forward|hacia adelante", "four|cuatro", "free|libre / gratis", "friend|amigo",
-"from|de / desde", "front|frente", "full|lleno", "fund|fondo / financiar", "future|futuro",
-"game|juego / partido", "garden|jardin", "gas|gas / gasolina", "general|general", "generation|generacion",
-"get|obtener / conseguir", "girl|nina / chica", "give|dar", "glass|vaso / vidrio", "go|ir",
-"goal|meta / objetivo / gol", "good|bueno", "government|gobierno", "great|gran / genial", "green|verde",
-"ground|suelo / tierra", "group|grupo", "grow|crecer", "growth|crecimiento", "guess|adivinar / suponer",
-"gun|arma / pistola", "guy|tipo / chico", "hair|cabello / pelo", "half|mitad", "hand|mano",
-"hang|colgar", "happen|suceder / pasar", "happy|feliz", "hard|duro / dificil", "have|tener / haber",
-"he|el", "head|cabeza / dirigir", "health|salud", "hear|oir / escuchar", "heart|corazon",
-"heat|calor / calentar", "heavy|pesado", "help|ayuda / ayudar", "her|su (de ella) / a ella", "here|aqui",
-"herself|ella misma", "high|alto", "him|a el / lo", "himself|el mismo", "his|su (de el)",
-"history|historia", "hit|golpear", "hold|sostener / mantener", "home|hogar / casa", "hope|esperanza / esperar",
-"hospital|hospital", "hot|caliente", "hotel|hotel", "hour|hora", "house|casa",
-"how|como", "however|sin embargo", "huge|enorme", "human|humano", "hundred|cien",
-"husband|esposo", "I|yo", "idea|idea", "identify|identificar", "if|si (condicional)",
-"image|imagen", "imagine|imaginar", "impact|impacto", "important|importante", "improve|mejorar",
-"in|en / dentro", "include|incluir", "including|incluyendo", "increase|aumentar / incremento", "indeed|de hecho / ciertamente",
-"indicate|indicar", "individual|individual / individuo", "industry|industria", "information|informacion", "inside|dentro",
-"instead|en cambio / en lugar de", "institution|institucion", "interest|interes", "interesting|interesante", "international|internacional",
-"interview|entrevista", "into|hacia adentro / en", "investment|inversion", "involve|involucrar", "issue|problema / tema / emitir",
-"it|eso / ello", "item|articulo / elemento", "its|su (de cosa)", "itself|si mismo", "job|trabajo / empleo",
-"join|unirse", "just|solo / justo", "keep|mantener / guardar", "key|clave / llave", "kid|nino / chaval",
-"kill|matar", "kind|tipo / amable", "kitchen|cocina", "know|saber / conocer", "knowledge|conocimiento",
-"land|tierra / aterrizar", "language|idioma / lenguaje", "large|grande", "last|ultimo / durar", "late|tarde",
-"later|mas tarde", "laugh|reir / risa", "law|ley", "lawyer|abogado", "lay|poner / tender",
-"lead|liderar / guiar", "leader|lider", "learn|aprender", "least|menos / minimo", "leave|dejar / salir",
-"left|izquierda / dejado", "leg|pierna", "legal|legal", "less|menos", "let|permitir / dejar",
-"letter|carta / letra", "level|nivel", "lie|mentir / yacer", "life|vida", "light|luz / ligero",
-"like|gustar / como", "likely|probable", "line|linea", "list|lista / listar", "listen|escuchar",
-"little|pequeno / poco", "live|vivir / en vivo", "local|local", "long|largo", "look|mirar / parecer",
-"lose|perder", "loss|perdida", "lot|mucho / lote", "love|amor / amar", "low|bajo",
-"machine|maquina", "magazine|revista", "main|principal", "maintain|mantener", "major|principal / mayor",
-"majority|mayoria", "make|hacer / fabricar", "man|hombre", "manage|gestionar / manejar", "management|gestion / gerencia",
-"manager|gerente / administrador", "many|muchos", "market|mercado", "marriage|matrimonio", "material|material",
-"matter|asunto / importar", "may|puede (posibilidad)", "maybe|tal vez / quiza", "me|me / a mi", "mean|significar / malo",
-"measure|medir / medida", "media|medios de comunicacion", "medical|medico", "meet|conocer / reunirse", "meeting|reunion",
-"member|miembro", "memory|memoria", "mention|mencionar", "message|mensaje", "method|metodo",
-"middle|medio / centro", "might|podria", "military|militar", "million|millon", "mind|mente / importar",
-"minute|minuto", "miss|perder / extranar", "mission|mision", "model|modelo", "modern|moderno",
-"moment|momento", "money|dinero", "month|mes", "more|mas", "morning|manana",
-"most|la mayoria / mas", "mother|madre", "mouth|boca", "move|mover / mudarse", "movement|movimiento",
-"movie|pelicula", "Mr|senor", "Mrs|senora", "much|mucho", "music|musica",
-"must|deber (obligacion)", "my|mi", "myself|yo mismo", "name|nombre", "nation|nacion",
-"national|nacional", "natural|natural", "nature|naturaleza", "near|cerca", "nearly|casi",
-"necessary|necesario", "need|necesidad / necesitar", "network|red", "never|nunca", "new|nuevo",
-"news|noticias", "newspaper|periodico", "next|siguiente / proximo", "nice|agradable / simpatico", "night|noche",
-"no|no", "none|ninguno", "nor|ni", "north|norte", "not|no",
-"note|nota / anotar", "nothing|nada", "notice|notar / aviso", "now|ahora", "number|numero",
-"occur|ocurrir", "of|de", "off|apagado / fuera", "offer|ofrecer / oferta", "office|oficina",
-"officer|oficial", "official|oficial", "often|a menudo", "oh|oh", "oil|aceite / petroleo",
-"ok|bien / de acuerdo", "old|viejo", "on|en / sobre", "once|una vez", "one|uno",
-"only|solo / solamente", "onto|sobre", "open|abrir / abierto", "operation|operacion", "opportunity|oportunidad",
-"option|opcion", "or|o", "order|orden / ordenar", "organization|organizacion", "other|otro",
-"others|otros", "our|nuestro", "out|fuera", "outside|afuera", "over|encima / sobre",
-"own|propio / poseer", "owner|dueno / propietario", "page|pagina", "pain|dolor", "painting|pintura",
-"paper|papel", "parent|padre o madre", "part|parte", "participant|participante", "particular|particular",
-"particularly|particularmente", "partner|pareja / socio", "party|fiesta / partido", "pass|pasar / aprobar", "past|pasado",
-"patient|paciente", "pattern|patron", "pay|pagar", "peace|paz", "people|gente / personas",
-"per|por", "perform|realizar / actuar", "performance|rendimiento / actuacion", "perhaps|quiza / tal vez", "period|periodo",
-"person|persona", "personal|personal", "phone|telefono", "physical|fisico", "pick|elegir / recoger",
-"picture|foto / imagen", "piece|pieza / pedazo", "place|lugar", "plan|plan / planear", "plant|planta",
-"play|jugar / obra", "player|jugador", "PM|tarde (pm)", "point|punto / senalar", "police|policia",
-"policy|politica (regla)", "political|politico", "politics|politica", "poor|pobre", "popular|popular",
-"population|poblacion", "position|posicion", "positive|positivo", "possible|posible", "power|poder / energia",
-"practice|practica / practicar", "prepare|preparar", "present|presente / regalar", "president|presidente", "pressure|presion",
-"pretty|bonito / bastante", "prevent|prevenir / evitar", "price|precio", "private|privado", "probably|probablemente",
-"problem|problema", "process|proceso", "produce|producir", "product|producto", "production|produccion",
-"professional|profesional", "professor|profesor", "program|programa", "project|proyecto", "property|propiedad",
-"protect|proteger", "prove|demostrar / probar", "provide|proporcionar / proveer", "public|publico", "pull|tirar / jalar",
-"purpose|proposito", "push|empujar", "put|poner", "quality|calidad", "question|pregunta",
-"quickly|rapidamente", "quite|bastante", "race|carrera / raza", "radio|radio", "raise|levantar / criar",
-"range|rango / alcance", "rate|tasa / tarifa", "rather|mas bien / preferir", "reach|alcanzar / llegar a", "read|leer",
-"ready|listo", "real|real", "reality|realidad", "realize|darse cuenta", "really|realmente",
-"reason|razon", "receive|recibir", "recent|reciente", "recently|recientemente", "recognize|reconocer",
-"record|registro / grabar", "red|rojo", "reduce|reducir", "reflect|reflejar", "region|region",
-"relate|relacionar", "relationship|relacion", "religious|religioso", "remain|permanecer", "remember|recordar",
-"remove|quitar / eliminar", "report|informe / reportar", "represent|representar", "Republican|republicano", "require|requerir",
-"research|investigacion", "resource|recurso", "respond|responder", "response|respuesta", "responsibility|responsabilidad",
-"rest|descanso / el resto", "result|resultado", "return|volver / regresar", "reveal|revelar", "rich|rico",
-"right|derecho / correcto", "rise|subir / levantarse", "risk|riesgo", "road|camino / carretera", "rock|roca",
-"role|rol / papel", "room|habitacion / cuarto", "rule|regla / gobernar", "run|correr", "safe|seguro",
-"same|mismo", "save|guardar / salvar", "say|decir", "scene|escena", "school|escuela",
-"science|ciencia", "scientist|cientifico", "score|puntuacion / anotar", "sea|mar", "season|temporada / estacion",
-"seat|asiento", "second|segundo", "section|seccion", "security|seguridad", "see|ver",
-"seek|buscar", "seem|parecer", "sell|vender", "send|enviar", "senior|superior / mayor",
-"sense|sentido", "series|serie", "serious|serio", "serve|servir", "service|servicio",
-"set|establecer / conjunto", "seven|siete", "several|varios", "sex|sexo", "sexual|sexual",
-"shake|agitar / sacudir", "share|compartir", "she|ella", "shoot|disparar", "short|corto / bajo",
-"shot|disparo / tiro", "should|deberia", "shoulder|hombro", "show|mostrar / espectaculo", "side|lado",
-"sign|senuelo / firmar", "significant|significativo", "similar|similar", "simple|simple", "simply|simplemente",
-"since|desde / ya que", "sing|cantar", "single|soltero / unico", "sister|hermana", "sit|sentarse",
-"site|sitio / lugar", "situation|situacion", "six|seis", "size|tamano", "skill|habilidad",
-"skin|piel", "small|pequeno", "smile|sonrisa / sonreir", "so|tan / asi que", "social|social",
-"society|sociedad", "soldier|soldado", "some|algun / algo de", "somebody|alguien", "someone|alguien",
-"something|algo", "sometimes|a veces", "son|hijo", "song|cancion", "soon|pronto",
-"sort|tipo / ordenar", "sound|sonido / sonar", "source|fuente", "south|sur", "southern|sureno",
-"space|espacio", "speak|hablar", "special|especial", "specific|especifico", "speech|discurso",
-"spend|gastar / pasar (tiempo)", "sport|deporte", "spring|primavera / manantial", "staff|personal / equipo", "stage|etapa / escenario",
-"stand|estar de pie / soportar", "standard|estandar", "star|estrella", "start|empezar / inicio", "state|estado / afirmar",
-"statement|declaracion", "station|estacion", "stay|quedarse / permanecer", "step|paso", "still|todavia / quieto",
-"stock|acciones / inventario", "stop|detener / parar", "store|tienda / almacenar", "story|historia / cuento", "strategy|estrategia",
-"street|calle", "strong|fuerte", "structure|estructura", "student|estudiante", "study|estudio / estudiar",
-"stuff|cosas", "style|estilo", "subject|sujeto / materia", "success|exito", "successful|exitoso",
-"such|tal / semejante", "suddenly|repentinamente", "suffer|sufrir", "suggest|sugerir", "summer|verano",
-"support|apoyo / apoyar", "sure|seguro", "surface|superficie", "system|sistema", "table|mesa / tabla",
-"take|tomar / llevar", "talk|hablar", "task|tarea", "tax|impuesto", "teach|ensenar",
-"teacher|profesor / maestro", "team|equipo", "technology|tecnologia", "television|television", "tell|contar / decir",
-"ten|diez", "tend|tender a", "term|termino / periodo", "test|prueba / examen", "than|que (comparativo)",
-"thank|agradecer", "that|eso / que", "the|el / la / los / las", "their|su (de ellos)", "them|ellos (objeto)",
-"themselves|ellos mismos", "then|entonces / luego", "theory|teoria", "there|ahi / alli", "these|estos / estas",
-"they|ellos", "thing|cosa", "think|pensar", "third|tercero", "this|este / esta",
-"those|esos / esas", "though|aunque", "thought|pensamiento / penso", "thousand|mil", "threat|amenaza",
-"three|tres", "through|a traves de", "throughout|a lo largo de", "throw|lanzar / tirar", "thus|asi / por lo tanto",
-"time|tiempo / vez", "to|a / para", "today|hoy", "together|juntos", "tonight|esta noche",
-"too|tambien / demasiado", "top|superior / cima", "total|total", "tough|duro / dificil", "toward|hacia",
-"town|pueblo / ciudad", "trade|comercio / comerciar", "traditional|tradicional", "training|entrenamiento", "travel|viajar / viaje",
-"treat|tratar / invitar", "treatment|tratamiento", "tree|arbol", "trial|juicio / prueba", "trip|viaje",
-"trouble|problema / molestia", "true|verdadero", "truth|verdad", "try|intentar / probar", "turn|girar / turno",
-"TV|television", "two|dos", "type|tipo / escribir a maquina", "under|debajo", "understand|entender / comprender",
-"unit|unidad", "until|hasta", "up|arriba", "upon|sobre", "us|nosotros (objeto)",
-"use|usar / uso", "usually|usualmente", "value|valor", "various|varios", "very|muy",
-"victim|victima", "view|vista / ver", "violence|violencia", "visit|visitar / visita", "voice|voz",
-"vote|votar / voto", "wait|esperar", "walk|caminar / paseo", "wall|pared / muro", "want|querer",
-"war|guerra", "watch|mirar / reloj", "water|agua", "way|camino / manera", "we|nosotros",
-"weapon|arma", "wear|usar / vestir", "week|semana", "weight|peso", "well|bien / pozo",
-"west|oeste", "western|occidental", "what|que", "whatever|lo que sea", "when|cuando",
-"where|donde", "whether|si (eleccion)", "which|cual", "while|mientras", "white|blanco",
-"who|quien", "whole|entero / todo", "whom|a quien", "whose|de quien", "why|por que",
-"wide|ancho / amplio", "wife|esposa", "will|voluntad / aux futuro", "win|ganar", "wind|viento",
-"window|ventana", "wish|deseo / desear", "with|con", "within|dentro de", "without|sin",
-"woman|mujer", "wonder|preguntarse / maravilla", "word|palabra", "work|trabajo / trabajar", "worker|trabajador",
-"world|mundo", "worry|preocuparse", "would|condicional (harias)", "write|escribir", "writer|escritor",
-"wrong|incorrecto / equivocado", "yard|patio / yarda", "yeah|si", "year|ano", "yes|si",
-"yet|todavia / aun", "you|tu / usted", "young|joven", "your|tu / su", "yourself|tu mismo"
-];
-var vocabulary = rawWordData.map(function(item, idx) {
-var parts = item.split('|');
-return { id: idx + 1, en: parts[0], es: parts[1] };
-});
-var studyMethod = 'flash';
-var studyDirection = 'en-es';
-var studyQueue = [];
-var queueIdx = 0;
-var sessionMode = '';
-var advanceTimeout = null;
-function getStore() {
-try { return JSON.parse(localStorage.getItem('linguini_data')) || { words: {}, diagIndex: 0, exams: [] }; }
-catch(e) { return { words: {}, diagIndex: 0, exams: [] }; }
-}
-function saveStore(store) {
-localStorage.setItem('linguini_data', JSON.stringify(store));
-}
-function saveWordStatus(id, status) {
-var s = getStore();
-s.words[id] = status;
-saveStore(s);
-}
-window.onload = function() {
-var s = getStore();
-if (s.diagIndex > 0 && s.diagIndex < vocabulary.length) {
-document.getElementById('resumePanel').style.display = 'block';
-document.getElementById('resumeText').innerText = "Estás en la palabra " + (s.diagIndex + 1) + " de " + vocabulary.length + ".";
-}
-renderDictionary();
-};
-function switchTab(viewId) {
-document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-document.getElementById(viewId).classList.add('active');
-document.getElementById('nav-daily').classList.toggle('active', viewId === 'v-daily');
-document.getElementById('nav-dict').classList.toggle('active', viewId === 'v-dict');
-document.getElementById('nav-prog').classList.toggle('active', viewId === 'v-progress');
-if (viewId === 'v-dict') renderDictionary();
-if (viewId === 'v-progress') updateMetrics();
-}
-function setMethod(m) {
-studyMethod = m;
-document.getElementById('m-flash').classList.toggle('active', m === 'flash');
-document.getElementById('m-type').classList.toggle('active', m === 'type');
-}
-function setDirection(d) {
-studyDirection = d;
-document.getElementById('dir-en-es').classList.toggle('active', d === 'en-es');
-document.getElementById('dir-es-en').classList.toggle('active', d === 'es-en');
-}
-function startDailySession() {
-var store = getStore();
-var review = vocabulary.filter(w => store.words[w.id] === 'doubt' || store.words[w.id] === 'fail');
-var newWords = vocabulary.filter(w => !store.words[w.id]).slice(0, 20);
-studyQueue = review.concat(newWords);
-if (studyQueue.length === 0) { alert("¡Al día! No hay palabras pendientes."); return; }
-sessionMode = 'daily';
-queueIdx = 0;
-initStudyUI();
-}
-function startDiagnosticSession() {
-if(confirm("Esto reiniciará tu progreso de diagnóstico a la palabra 1. ¿Seguro?")) {
-var s = getStore();
-s.diagIndex = 0;
-saveStore(s);
-studyQueue = vocabulary.slice();
-sessionMode = 'diagnostic';
-queueIdx = 0;
-initStudyUI();
-}
-}
-function resumeDiagnostic() {
-var s = getStore();
-studyQueue = vocabulary.slice();
-sessionMode = 'diagnostic';
-queueIdx = s.diagIndex;
-initStudyUI();
-}
-function startBiweeklyExam() {
-var store = getStore();
-studyQueue = vocabulary.slice().sort(function() { return 0.5 - Math.random(); }).slice(0, 30);
-sessionMode = 'exam';
-queueIdx = 0;
-initStudyUI();
-}
-function initStudyUI() {
-switchTab('v-study');
-loadCard();
-}
-function loadCard() {
-if (queueIdx >= studyQueue.length) {
-alert("¡Sesión completada!");
-if (sessionMode === 'diagnostic') {
-var s = getStore(); s.diagIndex = 0; saveStore(s);
-}
-if (sessionMode === 'exam') {
-var store = getStore();
-store.exams = store.exams || [];
-store.exams.push({ date: new Date().toISOString() });
-saveStore(store);
-}
-exitStudy();
-return;
-}
-var item = studyQueue[queueIdx];
-var promptText = studyDirection === 'en-es' ? item.en : item.es;
-var answerText = studyDirection === 'en-es' ? item.es : item.en;
-document.getElementById('studyCounter').innerText = (queueIdx + 1) + " / " + studyQueue.length;
-document.getElementById('cardPrompt').innerText = promptText;
-document.getElementById('cardAnswer').innerText = answerText;
-// Reset UI
-document.getElementById('cardAnswer').style.display = 'none';
-document.getElementById('visualFeedback').style.display = 'none';
-document.getElementById('gradeControls').style.display = 'none';
-document.getElementById('btnNextWord').style.display = 'none';
-document.getElementById('btnSkipX').style.display = 'block';
-if (studyMethod === 'type') {
-document.getElementById('writeZone').style.display = 'block';
-document.getElementById('btnRevealFlash').style.display = 'none';
-var inp = document.getElementById('typeInput');
-inp.value = '';
-inp.disabled = false;
-document.getElementById('btnSubmitWord').style.display = 'block';
-inp.focus();
-} else {
-document.getElementById('writeZone').style.display = 'none';
-document.getElementById('btnRevealFlash').style.display = 'block';
-}
-}
-function revealCard() {
-document.getElementById('cardAnswer').style.display = 'block';
-document.getElementById('btnRevealFlash').style.display = 'none';
-document.getElementById('gradeControls').style.display = 'grid';
-document.getElementById('btnSkipX').style.display = 'none';
-}
-function cleanString(str) {
-return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
-}
-function verifyTyping() {
-var item = studyQueue[queueIdx];
-var userVal = cleanString(document.getElementById('typeInput').value);
-var targetAnswers = studyDirection === 'en-es' ? item.es : item.en;
-var validOpts = targetAnswers.split('/').map(s => cleanString(s));
-var matched = validOpts.some(opt => userVal.length > 1 && (opt === userVal || opt.includes(userVal)));
-document.getElementById('typeInput').disabled = true;
-document.getElementById('btnSubmitWord').style.display = 'none';
-document.getElementById('btnSkipX').style.display = 'none';
-document.getElementById('cardAnswer').style.display = 'block';
-document.getElementById('btnNextWord').style.display = 'block';
-var fb = document.getElementById('visualFeedback');
-fb.style.display = 'block';
-if (matched) {
-fb.className = 'feedback-icon fc-pass';
-fb.innerText = '✓';
-saveWordStatus(item.id, 'pass');
-} else {
-fb.className = 'feedback-icon fc-fail';
-fb.innerText = '✕';
-saveWordStatus(item.id, 'fail');
-}
-if (sessionMode === 'diagnostic') saveDiagnosticProgress();
-}
-function gradeAnswer(status) {
-var item = studyQueue[queueIdx];
-saveWordStatus(item.id, status);
-var fb = document.getElementById('visualFeedback');
-fb.style.display = 'block';
-fb.className = status === 'pass' ? 'feedback-icon fc-pass' : 'feedback-icon fc-fail';
-fb.innerText = status === 'pass' ? '✓' : '✕';
-if (sessionMode === 'diagnostic') saveDiagnosticProgress();
-clearTimeout(advanceTimeout);
-advanceTimeout = setTimeout(advanceWord, 450);
-}
-function saveDiagnosticProgress() {
-var s = getStore();
-s.diagIndex = queueIdx + 1;
-saveStore(s);
-}
-function advanceWord() {
-queueIdx++;
-loadCard();
-}
-function goBackCard() {
-clearTimeout(advanceTimeout);
-if (queueIdx > 0) {
-queueIdx--;
-if (sessionMode === 'diagnostic') {
-var s = getStore();
-s.diagIndex = queueIdx;
-saveStore(s);
-}
-loadCard();
-} else {
-alert("Ya estás en la primera palabra de esta sesión.");
-}
-}
-function exitStudy() {
-clearTimeout(advanceTimeout);
-switchTab('v-daily');
-window.onload();
-}
-function renderDictionary(filter = '') {
-var s = getStore().words;
-var listEl = document.getElementById('dictList');
-listEl.innerHTML = '';
-var q = filter.toLowerCase();
-var filtered = vocabulary.filter(w => w.en.toLowerCase().includes(q) || w.es.toLowerCase().includes(q));
-filtered.forEach(w => {
-var status = s[w.id];
-var color = '#a1a1aa';
-if (status === 'pass') color = 'var(--pass)';
-if (status === 'doubt') color = 'var(--doubt)';
-if (status === 'fail') color = 'var(--fail)';
-var html = ⁠<div class="dict-item"> <div> <div class="dict-word">${w.en}</div> <div class="dict-trans">${w.es}</div> </div> <div class="status-dot" style="background: ${color};"></div> </div>⁠;
-listEl.insertAdjacentHTML('beforeend', html);
-});
-}
-function filterDict() {
-var q = document.getElementById('searchDict').value;
-renderDictionary(q);
-}
-function updateMetrics() {
-var store = getStore();
-var wordsObj = store.words || {};
-var total = vocabulary.length;
-var pass = 0, doubt = 0, fail = 0;
-Object.keys(wordsObj).forEach(function(k) {
-if (wordsObj[k] === 'pass') pass++;
-if (wordsObj[k] === 'doubt') doubt++;
-if (wordsObj[k] === 'fail') fail++;
-});
-var studied = pass + doubt + fail;
-var coverage = Math.round((studied / total) * 100);
-var accuracy = studied > 0 ? Math.round((pass / studied) * 100) : 0;
-document.getElementById('pMastered').innerText = pass;
-document.getElementById('pDoubt').innerText = doubt + fail;
-document.getElementById('pTotalPct').innerText = coverage + '%';
-document.getElementById('pAccuracy').innerText = accuracy + '%';
-}
-function exportPDFReport() {
-var { jsPDF } = window.jspdf;
-var doc = new jsPDF();
-var store = getStore();
-doc.setFont("helvetica", "bold");
-doc.setFontSize(16);
-doc.text("INFORME DE RENDIMIENTO — LINGUINI 1000", 14, 20);
-doc.setFont("helvetica", "normal");
-doc.setFontSize(10);
-doc.text("Fecha: " + new Date().toLocaleDateString(), 14, 28);
-var pass = 0, doubt = 0, fail = 0;
-var badList = [];
-vocabulary.forEach(function(item) {
-var status = store.words[item.id];
-if (status === 'pass') pass++;
-if (status === 'doubt' || status === 'fail') {
-if (status === 'doubt') doubt++;
-if (status === 'fail') fail++;
-badList.push(item);
-}
-});
-doc.text("Dominadas: " + pass + " | Dudosas / Errores: " + (doubt + fail), 14, 36);
-doc.line(14, 40, 196, 40);
-doc.setFont("helvetica", "bold");
-doc.text("Listado prioritario para repaso:", 14, 48);
-doc.setFont("helvetica", "normal");
-var y = 56;
-if (badList.length === 0) {
-doc.text("No tienes palabras marcadas con error o duda.", 14, y);
-} else {
-badList.forEach(function(w, idx) {
-if (y > 275) { doc.addPage(); y = 20; }
-doc.text((idx + 1) + ". " + w.en + "  —  " + w.es, 14, y);
-y += 6;
-});
-}
-doc.save("Reporte_Linguini.pdf");
-}
-</script>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="brand">LINGUINI 1000</div>
+    </header>
+
+    <main id="v-daily" class="view active">
+      <div class="card-panel" id="resumePanel" style="display: none; border-color: var(--pass);">
+        <h2>Tienes un test en progreso</h2>
+        <p class="desc" id="resumeText">Estás en la palabra X.</p>
+        <button class="btn-action" style="background: var(--pass); color: #fff;" onclick="resumeDiagnostic()">Continuar Diagnóstico</button>
+      </div>
+
+      <div class="card-panel">
+        <h2>Configurar Práctica</h2>
+        <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;">DIRECCIÓN DEL IDIOMA</label>
+        <div class="option-row">
+          <button id="dir-en-es" class="btn-chip active" onclick="setDirection('en-es')">Inglés → Español</button>
+          <button id="dir-es-en" class="btn-chip" onclick="setDirection('es-en')">Español → Inglés</button>
+        </div>
+        <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;">MÉTODO DE RESPUESTA</label>
+        <div class="option-row">
+          <button id="m-flash" class="btn-chip active" onclick="setMethod('flash')">Flashcard</button>
+          <button id="m-type" class="btn-chip" onclick="setMethod('type')">Escritura</button>
+        </div>
+        <button class="btn-action" onclick="startDailySession()">Iniciar Rutina Diaria</button>
+        <button class="btn-secondary" style="margin-top:10px;" onclick="startDiagnosticSession()">Nuevo Test Diagnóstico</button>
+      </div>
+    </main>
+
+    <section id="v-study" class="view">
+      <div class="study-box">
+        <div id="studyCounter" class="counter">1 / 1000</div>
+        <div id="cardPrompt" class="word-title">Word</div>
+        <div id="cardAnswer" class="meaning">Significado</div>
+        <div id="visualFeedback" class="feedback-icon"></div>
+        <div id="writeZone" style="width: 100%; display: none;">
+          <input type="text" id="typeInput" class="input-clean" placeholder="Escribe tu respuesta..." autocomplete="off">
+          <button id="btnSubmitWord" class="btn-action" onclick="verifyTyping()">Comprobar</button>
+        </div>
+        <button id="btnRevealFlash" class="btn-outline" style="margin-top: 20px;" onclick="revealCard()">Ver Respuesta</button>
+      </div>
+
+      <button id="btnSkipX" class="btn-x-red" onclick="gradeAnswer('fail')">✕</button>
+
+      <div id="gradeControls" class="grade-grid" style="display: none;">
+        <button class="btn-grade" style="background: #713f12; border: 1px solid var(--doubt);" onclick="gradeAnswer('doubt')">Duda (?)</button>
+        <button class="btn-grade" style="background: #14532d; border: 1px solid var(--pass);" onclick="gradeAnswer('pass')">La sé (✓)</button>
+      </div>
+      <button id="btnNextWord" class="btn-action" style="display: none;" onclick="advanceWord()">Siguiente Palabra</button>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+        <button class="btn-secondary" onclick="goBackCard()">← Volver atrás</button>
+        <button class="btn-secondary" onclick="exitStudy()">Guardar y salir</button>
+      </div>
+    </section>
+
+    <section id="v-progress" class="view">
+      <div class="card-panel">
+        <h2>Progreso y Auditoría</h2>
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-num" id="pMastered" style="color: var(--pass);">0</div><div class="metric-sub">Dominadas</div></div>
+          <div class="metric-card"><div class="metric-num" id="pDoubt" style="color: var(--doubt);">0</div><div class="metric-sub">Por repasar</div></div>
+        </div>
+        <button class="btn-action" onclick="exportPDFReport()">Descargar reporte en PDF</button>
+      </div>
+      <div class="card-panel">
+        <h2>Evaluación Mixta Semanal</h2>
+        <button class="btn-secondary" onclick="startBiweeklyExam()">Tomar evaluación mixta</button>
+      </div>
+    </section>
+
+    <section id="v-dict" class="view">
+      <div class="card-panel">
+        <h2>Diccionario</h2>
+        <input type="text" id="searchDict" class="search-box" placeholder="Buscar palabra..." onkeyup="filterDict()">
+        <div id="dictList" class="dict-list"></div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="nav-bottom">
+    <button id="nav-daily" class="nav-btn active" onclick="switchTab('v-daily')">Práctica</button>
+    <button id="nav-prog" class="nav-btn" onclick="switchTab('v-progress')">Progreso</button>
+    <button id="nav-dict" class="nav-btn" onclick="switchTab('v-dict')">Diccionario</button>
+  </nav>
+
+  <script type="module">
+    // IMPORTACIÓN CORREGIDA: Apunta exactamente a palabras.js
+    let vocabulary = [];
+    import('./palabras.js')
+      .then(module => {
+        vocabulary = module.words;
+        initializeApp();
+      })
+      .catch(err => {
+        alert("Error cargando palabras.js. Verifica que el archivo exista en GitHub con ese nombre exacto.");
+      });
+
+    // Variables globales
+    window.studyMethod = 'flash'; window.studyDirection = 'en-es'; window.studyQueue = []; window.queueIdx = 0; window.sessionMode = '';
+    window.advanceTimeout = null;
+
+    function getStore() {
+      try { return JSON.parse(localStorage.getItem('linguini_data')) || { words: {}, diagIndex: 0 }; } 
+      catch(e) { return { words: {}, diagIndex: 0 }; }
+    }
+    function saveStore(store) { localStorage.setItem('linguini_data', JSON.stringify(store)); }
+    function saveWordStatus(id, status) {
+      var s = getStore(); s.words[id] = status; saveStore(s);
+    }
+
+    function initializeApp() {
+      var s = getStore();
+      if (s.diagIndex > 0 && s.diagIndex < vocabulary.length) {
+        document.getElementById('resumePanel').style.display = 'block';
+        document.getElementById('resumeText').innerText = "Estás en la palabra " + (s.diagIndex + 1) + " de " + vocabulary.length + ".";
+      }
+      window.renderDictionary();
+    }
+
+    window.switchTab = function(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('nav-' + viewId.replace('v-', '')).classList.add('active');
+      if (viewId === 'v-dict') window.renderDictionary();
+      if (viewId === 'v-progress') window.updateMetrics();
+    }
+
+    window.setMethod = function(m) {
+      window.studyMethod = m;
+      document.getElementById('m-flash').classList.toggle('active', m === 'flash');
+      document.getElementById('m-type').classList.toggle('active', m === 'type');
+    }
+    window.setDirection = function(d) {
+      window.studyDirection = d;
+      document.getElementById('dir-en-es').classList.toggle('active', d === 'en-es');
+      document.getElementById('dir-es-en').classList.toggle('active', d === 'es-en');
+    }
+
+    window.startDailySession = function() {
+      var store = getStore();
+      var review = vocabulary.filter(w => store.words[w.id] === 'doubt' || store.words[w.id] === 'fail');
+      var newWords = vocabulary.filter(w => !store.words[w.id]).slice(0, 20);
+      window.studyQueue = review.concat(newWords);
+      if (window.studyQueue.length === 0) { alert("¡Al día! No hay palabras pendientes."); return; }
+      window.sessionMode = 'daily'; window.queueIdx = 0; window.initStudyUI();
+    }
+
+    window.startDiagnosticSession = function() {
+      if(confirm("Esto reiniciará tu progreso de diagnóstico a la palabra 1. ¿Seguro?")) {
+        var s = getStore(); s.diagIndex = 0; saveStore(s);
+        window.studyQueue = vocabulary.slice(); window.sessionMode = 'diagnostic'; window.queueIdx = 0; window.initStudyUI();
+      }
+    }
+
+    window.resumeDiagnostic = function() {
+      var s = getStore();
+      window.studyQueue = vocabulary.slice(); window.sessionMode = 'diagnostic'; window.queueIdx = s.diagIndex || 0;
+      window.initStudyUI();
+    }
+    
+    window.startBiweeklyExam = function() {
+      window.studyQueue = vocabulary.slice().sort(() => 0.5 - Math.random()).slice(0, 30);
+      window.sessionMode = 'exam'; window.queueIdx = 0; window.initStudyUI();
+    }
+
+    window.initStudyUI = function() { window.switchTab('v-study'); window.loadCard(); }
+
+    window.loadCard = function() {
+      clearTimeout(window.advanceTimeout);
+      if (window.queueIdx >= window.studyQueue.length) {
+        alert("¡Sesión completada!");
+        if (window.sessionMode === 'diagnostic') { var s = getStore(); s.diagIndex = 0; saveStore(s); }
+        window.exitStudy(); return;
+      }
+      var item = window.studyQueue[window.queueIdx];
+      document.getElementById('studyCounter').innerText = (window.queueIdx + 1) + " / " + window.studyQueue.length;
+      document.getElementById('cardPrompt').innerText = window.studyDirection === 'en-es' ? item.en : item.es;
+      document.getElementById('cardAnswer').innerText = window.studyDirection === 'en-es' ? item.es : item.en;
+      
+      document.getElementById('cardAnswer').style.display = 'none';
+      document.getElementById('visualFeedback').style.display = 'none';
+      document.getElementById('gradeControls').style.display = 'none';
+      document.getElementById('btnNextWord').style.display = 'none';
+      document.getElementById('btnSkipX').style.display = 'block';
+
+      if (window.studyMethod === 'type') {
+        document.getElementById('writeZone').style.display = 'block';
+        document.getElementById('btnRevealFlash').style.display = 'none';
+        var inp = document.getElementById('typeInput');
+        inp.value = ''; inp.disabled = false;
+        document.getElementById('btnSubmitWord').style.display = 'block';
+      } else {
+        document.getElementById('writeZone').style.display = 'none';
+        document.getElementById('btnRevealFlash').style.display = 'block';
+      }
+    }
+
+    window.revealCard = function() {
+      document.getElementById('cardAnswer').style.display = 'block';
+      document.getElementById('btnRevealFlash').style.display = 'none';
+      document.getElementById('gradeControls').style.display = 'grid';
+      document.getElementById('btnSkipX').style.display = 'none';
+    }
+
+    window.verifyTyping = function() {
+      var item = window.studyQueue[window.queueIdx];
+      var userVal = document.getElementById('typeInput').value.toLowerCase().trim();
+      var target = window.studyDirection === 'en-es' ? item.es : item.en;
+      var matched = target.toLowerCase().includes(userVal) && userVal.length > 1;
+
+      document.getElementById('typeInput').disabled = true;
+      document.getElementById('btnSubmitWord').style.display = 'none';
+      document.getElementById('btnSkipX').style.display = 'none';
+      document.getElementById('cardAnswer').style.display = 'block';
+      document.getElementById('btnNextWord').style.display = 'block';
+
+      var fb = document.getElementById('visualFeedback');
+      fb.style.display = 'block';
+      
+      if (matched) { fb.className = 'feedback-icon fc-pass'; fb.innerText = '✓'; saveWordStatus(item.id, 'pass'); } 
+      else { fb.className = 'feedback-icon fc-fail'; fb.innerText = '✕'; saveWordStatus(item.id, 'fail'); }
+
+      if (window.sessionMode === 'diagnostic') window.saveDiagnosticProgress();
+    }
+
+    window.gradeAnswer = function(status) {
+      var item = window.studyQueue[window.queueIdx];
+      saveWordStatus(item.id, status);
+      var fb = document.getElementById('visualFeedback');
+      fb.style.display = 'block';
+      fb.className = status === 'pass' ? 'feedback-icon fc-pass' : 'feedback-icon fc-fail';
+      fb.innerText = status === 'pass' ? '✓' : '✕';
+      if (window.sessionMode === 'diagnostic') window.saveDiagnosticProgress();
+      window.advanceTimeout = setTimeout(window.advanceWord, 400);
+    }
+
+    window.saveDiagnosticProgress = function() { var s = getStore(); s.diagIndex = window.queueIdx + 1; saveStore(s); }
+    window.advanceWord = function() { window.queueIdx++; window.loadCard(); }
+
+    window.goBackCard = function() {
+      clearTimeout(window.advanceTimeout);
+      if (window.queueIdx > 0) {
+        window.queueIdx--;
+        if (window.sessionMode === 'diagnostic') { var s = getStore(); s.diagIndex = window.queueIdx; saveStore(s); }
+        window.loadCard();
+      } else { alert("Esta es la primera palabra."); }
+    }
+
+    window.exitStudy = function() { window.switchTab('v-daily'); initializeApp(); }
+
+    window.updateMetrics = function() {
+      var s = getStore().words, pass = 0, doubt = 0;
+      vocabulary.forEach(w => { if(s[w.id] === 'pass') pass++; else if(s[w.id] === 'doubt' || s[w.id] === 'fail') doubt++; });
+      document.getElementById('pMastered').innerText = pass;
+      document.getElementById('pDoubt').innerText = doubt;
+    }
+
+    window.renderDictionary = function(filter = '') {
+      var s = getStore().words, listEl = document.getElementById('dictList'); listEl.innerHTML = '';
+      var q = filter.toLowerCase();
+      vocabulary.filter(w => w.en.toLowerCase().includes(q) || w.es.toLowerCase().includes(q)).forEach(w => {
+        var c = s[w.id] === 'pass' ? 'var(--pass)' : (s[w.id] === 'doubt' || s[w.id] === 'fail' ? 'var(--fail)' : '#a1a1aa');
+        listEl.insertAdjacentHTML('beforeend', `<div class="dict-item"><div><div style="font-weight:600">${w.en}</div><div style="font-size:0.9rem; color:var(--text-muted)">${w.es}</div></div><div class="status-dot" style="background:${c}"></div></div>`);
+      });
+    }
+    window.filterDict = function() { window.renderDictionary(document.getElementById('searchDict').value); }
+
+    window.exportPDFReport = function() {
+      var { jsPDF } = window.jspdf; var doc = new jsPDF();
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.text("REPORTE LINGUINI 1000", 14, 20);
+      doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("Fecha: " + new Date().toLocaleDateString(), 14, 28);
+      var s = getStore().words, badList = [];
+      vocabulary.forEach(w => { if(s[w.id] === 'doubt' || s[w.id] === 'fail') badList.push(w); });
+      doc.text("Palabras por repasar: " + badList.length, 14, 36); doc.line(14, 40, 196, 40);
+      var y = 50;
+      badList.forEach((w, i) => {
+        if (y > 275) { doc.addPage(); y = 20; }
+        doc.text((i + 1) + ". " + w.en + " - " + w.es, 14, y); y += 6;
+      });
+      doc.save("Linguini_Reporte.pdf");
+    }
+  </script>
 </body>
 </html>
