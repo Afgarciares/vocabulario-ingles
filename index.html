@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>LINGUINI 1000</title>
+  <title>VoKblo 1000</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
@@ -15,7 +15,7 @@
     body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 90px 16px; }
     .app-shell { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; }
     .top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
-    .brand { font-size: 1rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); }
+    .brand { font-size: 1rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); text-transform: uppercase; }
     .view { width: 100%; display: none; flex-direction: column; gap: 16px; }
     .view.active { display: flex; }
     .card-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
@@ -40,7 +40,7 @@
     .grade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
     .btn-grade { padding: 14px; border-radius: 10px; color: #fff; font-size: 0.9rem; }
     .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-    .metric-card { background: #1c1c20; padding: 16px; border-radius: 10px; border: 1px solid var(--border); }
+    .metric-card { background: #1c1c20; padding: 16px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
     .metric-num { font-size: 2rem; font-weight: 700; }
     .metric-sub { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 6px; }
     .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); margin-bottom: 16px; font-size: 1rem; }
@@ -48,16 +48,17 @@
     .dict-item { background: var(--surface); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
     .status-dot { width: 10px; height: 10px; border-radius: 50%; }
     .nav-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(17,17,19,0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; max-width: 440px; margin: 0 auto; z-index: 10; }
-    .nav-btn { background: none; color: var(--text-muted); font-size: 0.85rem; padding: 10px 24px; border-radius: 8px; }
-    .nav-btn.active { color: var(--text-main); background: #222226; }
+    .nav-btn { background: none; color: var(--text-muted); font-size: 0.85rem; padding: 10px 24px; border-radius: 8px; transition: all 0.2s; }
+    .nav-btn.active { color: var(--text-main); background: #222226; font-weight: 700; }
   </style>
 </head>
 <body>
   <div class="app-shell">
     <header class="top-bar">
-      <div class="brand">LINGUINI 1000</div>
+      <div class="brand">VoKblo 1000</div>
     </header>
 
+    <!-- PRÁCTICA -->
     <main id="v-daily" class="view active">
       <div class="card-panel" id="resumePanel" style="display: none; border-color: var(--pass);">
         <h2>Tienes un test en progreso</h2>
@@ -82,6 +83,7 @@
       </div>
     </main>
 
+    <!-- ESTUDIO -->
     <section id="v-study" class="view">
       <div class="study-box">
         <div id="studyCounter" class="counter">1 / 1000</div>
@@ -95,7 +97,7 @@
         <button id="btnRevealFlash" class="btn-outline" style="margin-top: 20px;" onclick="revealCard()">Ver Respuesta</button>
       </div>
 
-      <button id="btnSkipX" class="btn-x-red" onclick="gradeAnswer('fail')">✕</button>
+      <button id="btnSkipX" class="btn-x-red" onclick="gradeAnswer('fail')">✕ No la sé</button>
 
       <div id="gradeControls" class="grade-grid" style="display: none;">
         <button class="btn-grade" style="background: #713f12; border: 1px solid var(--doubt);" onclick="gradeAnswer('doubt')">Duda (?)</button>
@@ -109,12 +111,14 @@
       </div>
     </section>
 
+    <!-- PROGRESO -->
     <section id="v-progress" class="view">
       <div class="card-panel">
         <h2>Progreso y Auditoría</h2>
         <div class="metric-grid">
           <div class="metric-card"><div class="metric-num" id="pMastered" style="color: var(--pass);">0</div><div class="metric-sub">Dominadas</div></div>
           <div class="metric-card"><div class="metric-num" id="pDoubt" style="color: var(--doubt);">0</div><div class="metric-sub">Por repasar</div></div>
+          <div class="metric-card" style="grid-column: span 2;"><div class="metric-num" id="pTotalPct">0%</div><div class="metric-sub">Avance Total</div></div>
         </div>
         <button class="btn-action" onclick="exportPDFReport()">Descargar reporte en PDF</button>
       </div>
@@ -124,6 +128,7 @@
       </div>
     </section>
 
+    <!-- DICCIONARIO -->
     <section id="v-dict" class="view">
       <div class="card-panel">
         <h2>Diccionario</h2>
@@ -135,12 +140,11 @@
 
   <nav class="nav-bottom">
     <button id="nav-daily" class="nav-btn active" onclick="switchTab('v-daily')">Práctica</button>
-    <button id="nav-prog" class="nav-btn" onclick="switchTab('v-progress')">Progreso</button>
+    <button id="nav-progress" class="nav-btn" onclick="switchTab('v-progress')">Progreso</button>
     <button id="nav-dict" class="nav-btn" onclick="switchTab('v-dict')">Diccionario</button>
   </nav>
 
   <script type="module">
-    // IMPORTACIÓN CORREGIDA: Apunta exactamente a palabras.js
     let vocabulary = [];
     import('./palabras.js')
       .then(module => {
@@ -148,18 +152,18 @@
         initializeApp();
       })
       .catch(err => {
-        alert("Error cargando palabras.js. Verifica que el archivo exista en GitHub con ese nombre exacto.");
+        alert("Error cargando palabras.js. Verifica que el archivo exista en GitHub.");
       });
 
-    // Variables globales
     window.studyMethod = 'flash'; window.studyDirection = 'en-es'; window.studyQueue = []; window.queueIdx = 0; window.sessionMode = '';
     window.advanceTimeout = null;
 
+    // Se cambió la key de localStorage para reiniciar de forma limpia cualquier dato corrupto previo
     function getStore() {
-      try { return JSON.parse(localStorage.getItem('linguini_data')) || { words: {}, diagIndex: 0 }; } 
+      try { return JSON.parse(localStorage.getItem('vokblo_data')) || { words: {}, diagIndex: 0 }; } 
       catch(e) { return { words: {}, diagIndex: 0 }; }
     }
-    function saveStore(store) { localStorage.setItem('linguini_data', JSON.stringify(store)); }
+    function saveStore(store) { localStorage.setItem('vokblo_data', JSON.stringify(store)); }
     function saveWordStatus(id, status) {
       var s = getStore(); s.words[id] = status; saveStore(s);
     }
@@ -305,11 +309,21 @@
 
     window.exitStudy = function() { window.switchTab('v-daily'); initializeApp(); }
 
+    // Función de métricas corregida y ampliada
     window.updateMetrics = function() {
-      var s = getStore().words, pass = 0, doubt = 0;
-      vocabulary.forEach(w => { if(s[w.id] === 'pass') pass++; else if(s[w.id] === 'doubt' || s[w.id] === 'fail') doubt++; });
+      var s = getStore().words;
+      var pass = 0, doubt = 0;
+      vocabulary.forEach(w => { 
+        if(s[w.id] === 'pass') pass++; 
+        else if(s[w.id] === 'doubt' || s[w.id] === 'fail') doubt++; 
+      });
+      
+      var totalStudied = pass + doubt;
+      var pct = vocabulary.length > 0 ? Math.round((totalStudied / vocabulary.length) * 100) : 0;
+
       document.getElementById('pMastered').innerText = pass;
       document.getElementById('pDoubt').innerText = doubt;
+      document.getElementById('pTotalPct').innerText = pct + '%';
     }
 
     window.renderDictionary = function(filter = '') {
@@ -324,7 +338,7 @@
 
     window.exportPDFReport = function() {
       var { jsPDF } = window.jspdf; var doc = new jsPDF();
-      doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.text("REPORTE LINGUINI 1000", 14, 20);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.text("REPORTE VOKBLO 1000", 14, 20);
       doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("Fecha: " + new Date().toLocaleDateString(), 14, 28);
       var s = getStore().words, badList = [];
       vocabulary.forEach(w => { if(s[w.id] === 'doubt' || s[w.id] === 'fail') badList.push(w); });
@@ -334,7 +348,7 @@
         if (y > 275) { doc.addPage(); y = 20; }
         doc.text((i + 1) + ". " + w.en + " - " + w.es, 14, y); y += 6;
       });
-      doc.save("Linguini_Reporte.pdf");
+      doc.save("VoKblo_Reporte.pdf");
     }
   </script>
 </body>
